@@ -61,8 +61,8 @@ class AB3DMOT(object):
 				elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
 				else: assert False, 'error'
 			else: assert False, 'error'
-		elif cfg.dataset == 'nuScenes':
-			if cfg.det_name == 'centerpoint':		# tuned for CenterPoint detections
+		elif cfg.dataset == 'nuScenes':		# TODO: add specific values for BEVFormer
+			if cfg.det_name == 'centerpoint' or cfg.det_name == 'BEVFormer':		# tuned for CenterPoint detections
 				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
 				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.5, 1, 2
 				elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2

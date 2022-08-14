@@ -41,13 +41,15 @@ import os, sys, json, numpy as np, fire
 from typing import List, Dict, Any
 from shutil import copyfile
 from pyquaternion import Quaternion
-from xinshuo_io import mkdir_if_missing, load_list_from_folder, fileparts
+
+from xinshuo_io.file_io import mkdir_if_missing, load_list_from_folder, fileparts
 
 # load nuScenes libraries
 from nuscenes import NuScenes
 from nuscenes.utils.geometry_utils import transform_matrix
 from nuscenes.utils.data_classes import Box
 from nuscenes.utils.splits import create_splits_logs, create_splits_scenes
+from nuscenes.utils.kitti import KittiDB
 from AB3DMOT_libs.nuScenes2KITTI_helper import load_correspondence, load_correspondence_inverse
 from AB3DMOT_libs.nuScenes2KITTI_helper import kitti_cam2nuScenes_lidar, nuScenes_transform2KITTI
 from AB3DMOT_libs.nuScenes2KITTI_helper import create_KITTI_transform, convert_anno_to_KITTI, save_image, save_lidar
@@ -80,6 +82,7 @@ class KittiConverter:
         self.lidar_name = lidar_name
         self.split = split
         if split in ['train', 'val', 'trainval']: self.nusc_version = 'v1.0-trainval'
+        elif split in ['mini', 'mini_val']:       self.nusc_version = 'v1.0-mini'
         elif split == 'test':                     self.nusc_version = 'v1.0-test'
         self.result_name = result_name
         self.data_root = data_root

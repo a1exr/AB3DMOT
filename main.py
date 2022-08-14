@@ -11,17 +11,18 @@ from xinshuo_io import mkdir_if_missing, save_txt_file
 from xinshuo_miscellaneous import get_timestring, print_log
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='AB3DMOT')
-    parser.add_argument('--dataset', type=str, default='nuScenes', help='KITTI, nuScenes')
-    parser.add_argument('--split', type=str, default='', help='train, val, test')
-    parser.add_argument('--det_name', type=str, default='', help='pointrcnn')
-    args = parser.parse_args()
-    return args
-
+	parser = argparse.ArgumentParser(description='AB3DMOT')
+	parser.add_argument('--dataset', type=str, default='nuScenes', help='KITTI, nuScenes')
+	parser.add_argument('--split', type=str, default='', help='train, val, test, mini_train, mini_val')
+	parser.add_argument('--det_name', type=str, default='', help='BEVFormer / centerpoint / megvili')
+	parser.add_argument('--version_name', type=str, default='AB3DMOT', help='tracker version title')
+	args = parser.parse_args()
+	return args
+	
 def main_per_cat(cfg, cat, log, ID_start):
 
 	# get data-cat-split specific path
-	result_sha = '%s_%s_%s' % (cfg.det_name, cat, cfg.split)
+	result_sha = '%s_%s_%s' % (cfg.det_name,  cat, cfg.split)
 	det_root = os.path.join('./data', cfg.dataset, 'detection', result_sha)
 	subfolder, det_id2str, hw, seq_eval, data_root = get_subfolder_seq(cfg.dataset, cfg.split)
 	trk_root = os.path.join(data_root, 'tracking')
@@ -109,8 +110,8 @@ def main(args):
 	cfg, settings_show = Config(config_path)
 
 	# overwrite split and detection method
-	if args.split is not '': cfg.split = args.split
-	if args.det_name is not '': cfg.det_name = args.det_name
+	if args.split != '': cfg.split = args.split
+	if args.det_name != '': cfg.det_name = args.det_name
 
 	# print configs
 	time_str = get_timestring()

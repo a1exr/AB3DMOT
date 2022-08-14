@@ -25,7 +25,7 @@ def Config(filename):
 def get_subfolder_seq(dataset, split):
 
 	# dataset setting
-	file_path = os.path.dirname(os.path.realpath(__file__))
+	# file_path = os.path.dirname(os.path.realpath(__file__))
 	if dataset == 'KITTI':				# KITTI
 		det_id2str = {1: 'Pedestrian', 2: 'Car', 3: 'Cyclist'}
 		
@@ -39,7 +39,8 @@ def get_subfolder_seq(dataset, split):
 		if split == 'val':   seq_eval = ['0001', '0006', '0008', '0010', '0012', '0013', '0014', '0015', '0016', '0018', '0019']    # val
 		if split == 'test':  seq_eval  = ['%04d' % i for i in range(29)]
 	
-		data_root = os.path.join(file_path, '../data/KITTI') 		# path containing the KITTI root 
+		# data_root = os.path.join(file_path, '../data/KITTI') 		# path containing the KITTI root 
+		data_root = './data/KITTI' 		# path containing the KITTI root 
 
 	elif dataset == 'nuScenes':			# nuScenes
 		det_id2str = {1: 'Pedestrian', 2: 'Car', 3: 'Bicycle', 4: 'Motorcycle', 5: 'Bus', \
@@ -48,11 +49,14 @@ def get_subfolder_seq(dataset, split):
 		subfolder = split
 		hw = {'image': (900, 1600), 'lidar': (720, 1920)}
 
-		if split == 'train': seq_eval = get_split()[0]		# 700 scenes
-		if split == 'val':   seq_eval = get_split()[1]		# 150 scenes
-		if split == 'test':  seq_eval = get_split()[2]      # 150 scenes
+		if split == 'train': 		seq_eval = get_split()[0]	# 700 scenes
+		if split == 'val':   		seq_eval = get_split()[1]	# 150 scenes
+		if split == 'test':  		seq_eval = get_split()[2]   # 150 scenes
+		if split == 'mini_train':	seq_eval = get_split()[3]	# 8 scenes
+		if split == 'mini_val':		seq_eval = get_split()[4]   # 2 scenes
 
-		data_root = os.path.join(file_path, '../data/nuScenes/nuKITTI') 	# path containing the nuScenes-converted KITTI root
+		# data_root = os.path.join(file_path, '../data/nuScenes/nuKITTI') 	# path containing the nuScenes-converted KITTI root
+		data_root = './data/nuScenes/nuKITTI' 	# path containing the nuScenes-converted KITTI root
 
 	else: assert False, 'error, %s dataset is not supported' % dataset
 		
