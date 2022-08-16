@@ -61,8 +61,8 @@ class AB3DMOT(object):
 				elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
 				else: assert False, 'error'
 			else: assert False, 'error'
-		elif cfg.dataset == 'nuScenes':		# TODO: add specific values for BEVFormer
-			if cfg.det_name == 'centerpoint' or cfg.det_name == 'BEVFormer':		# tuned for CenterPoint detections
+		elif cfg.dataset == 'nuScenes':
+			if cfg.det_name == 'centerpoint':		# tuned for CenterPoint detections
 				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
 				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.5, 1, 2
 				elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
@@ -89,6 +89,24 @@ class AB3DMOT(object):
 				elif cat == 'Trailer': 		metric, thres, min_hits, max_age = 'dist', 10, 3, 2
 				elif cat == 'Truck': 		metric, thres, min_hits, max_age = 'dist', 10, 3, 2
 				else: assert False, 'error'
+			elif cfg.det_name == 'BEVFormer':
+				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.7, 1, 2
+				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.5, 1, 2
+				elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.4, 1, 2
+				elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.3, 3, 2
+				elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'hungar', 'iou_2d', -0.4, 1, 2
+				elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.7, 3, 2
+				elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.7, 1, 2
+				else: assert False, 'error'
+			# elif cfg.det_name == 'BEVFormer':
+			# 	if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'iou_2d', -0.45, 1, 3
+			# 	elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'iou_2d', -0.5, 1, 3
+			# 	elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'hungar', 'iou_2d', -0.4, 1, 3
+			# 	elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'hungar', 'iou_2d', -0.3, 3, 3
+			# 	elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'hungar', 'iou_2d', -0.4, 1, 3
+			# 	elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'hungar', 'iou_2d', -0.75, 3, 3
+			# 	elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'hungar', 'iou_2d', -0.6, 3, 3
+			# 	else: assert False, 'error'
 			else: assert False, 'error'
 		else: assert False, 'no such dataset'
 

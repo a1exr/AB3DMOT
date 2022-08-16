@@ -249,8 +249,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     result_path_ = os.path.expanduser(args.result_path)
-    # output_dir_ = os.path.expanduser(args.output_dir)
-    output_dir_ = fileparts(args.result_path)[0]
+    output_dir_ = os.path.expanduser(args.output_dir)
+    # output_dir_ = fileparts(args.result_path)[0]
     eval_set_ = args.eval_set
     dataroot_ = args.dataroot
     version_ = args.version
