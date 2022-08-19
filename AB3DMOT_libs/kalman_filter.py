@@ -102,19 +102,19 @@ class KF(Filter):	# new version
 		# self.kf.R[0:,0:] *= 10.   
 
 		# initial state uncertainty at time 0
-		# Given a single data, the initial velocity is very uncertain, so giv a high uncertainty to start
-		self.kf.P = np.array([[25,0,0,0,0,0,0,0,0,0,0,0],    # x
-		                      [0,25,0,0,0,0,0,0,0,0,0,0],    # y
+		# Given a single data, the initial velocity is very uncertain, so give a high uncertainty to start
+		self.kf.P = np.array([[10,0,0,0,0,0,0,0,0,0,0,0],    # x
+		                      [0,10,0,0,0,0,0,0,0,0,0,0],    # y
 		                      [0,0,0.5,0,0,0,0,0,0,0,0,0],    # z
-		                      [0,0,0,30,0,0,0,0,0,0,0,0],  	# theta
+		                      [0,0,0,0.25,0,0,0,0,0,0,0,0],  	# theta
 		                      [0,0,0,0,1,0,0,0,0,0,0,0],	# l
 		                      [0,0,0,0,0,1,0,0,0,0,0,0],	# w
 		                      [0,0,0,0,0,0,0.5,0,0,0,0,0],	# h
-		                      [0,0,0,0,0,0,0,100,0,0,0,0],	# dx
-		                      [0,0,0,0,0,0,0,0,100,0,0,0],	# dy
-		                      [0,0,0,0,0,0,0,0,0,50,0,0],	# dtheta
-		                      [0,0,0,0,0,0,0,0,0,0,10,0],	# dl
-		                      [0,0,0,0,0,0,0,0,0,0,0,10]])	# dw     
+		                      [0,0,0,0,0,0,0,5,0,0,0,0],	# dx
+		                      [0,0,0,0,0,0,0,0,5,0,0,0],	# dy
+		                      [0,0,0,0,0,0,0,0,0,0.1,0,0],	# dtheta
+		                      [0,0,0,0,0,0,0,0,0,0,0.5,0],	# dl
+		                      [0,0,0,0,0,0,0,0,0,0,0,0.5]])	# dw     
 		# self.kf.P[7:, 7:] *= 1000. 	
 		# self.kf.P *= 10.
 
