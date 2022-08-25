@@ -13,11 +13,18 @@ def load_detection(file):
 		warnings.simplefilter("ignore")
 		dets = np.loadtxt(file, delimiter=',') 	# load detections, N x 15
 
-	if len(dets.shape) == 1: dets = np.expand_dims(dets, axis=0) 	
+	if len(dets.shape) == 1:
+		dets = np.expand_dims(dets, axis=0) 	
 	if dets.shape[1] == 0:		# if no detection in a sequence
 		return [], False
-	else:
-		return dets, True
+
+	filtered_dets = np.array([det for det in dets if det[6] > 0.3])
+	
+	if len(filtered_dets.shape) == 1:
+		filtered_dets = np.expand_dims(filtered_dets, axis=0) 	
+	if filtered_dets.shape[1] == 0:		# if no detection in a sequence
+		return [], False
+	return filtered_dets, True
 
 def get_frame_det(dets_all, frame):
 	

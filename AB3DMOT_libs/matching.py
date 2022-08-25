@@ -93,12 +93,8 @@ def data_association(dets, trks, metric, threshold, algm='greedy', \
 		cost -= aff_matrix[matched_indices[row_index, 0], matched_indices[row_index, 1]]
 
 	# save for unmatched objects
-	unmatched_dets = []
-	for d, det in enumerate(dets):
-		if (d not in matched_indices[:, 0]): unmatched_dets.append(d)
-	unmatched_trks = []
-	for t, trk in enumerate(trks):
-		if (t not in matched_indices[:, 1]): unmatched_trks.append(t)
+	unmatched_dets = [d for d, det in enumerate(dets) if d not in matched_indices[:, 0]]
+	unmatched_trks = [t for t, trk in enumerate(trks) if t not in matched_indices[:, 1]]
 
 	# filter out matches with low affinity
 	matches = []

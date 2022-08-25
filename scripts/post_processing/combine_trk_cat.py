@@ -47,6 +47,9 @@ def combine_trk_cat(split, dataset, method, suffix, num_hypo):
 			# loop through each category
 			for subset_tmp in subset:
 				file_tmp = os.path.join(root_dir, subset_tmp, 'data'+data_suffix, seq_tmp+'.txt')
+				if not is_path_exists(file_tmp):
+					print('%s file not exist' % file_tmp)
+					continue
 				file_list_tmp.append(file_tmp)
 
 			save_path_tmp = os.path.join(save_root, seq_tmp+'.txt')

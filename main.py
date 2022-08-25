@@ -35,7 +35,7 @@ def main_per_cat(cfg, cat, log, ID_start):
 
 	# loop every sequence
 	seq_count = 0
-	total_time, total_frames = 0.0, 0
+	total_time, total_frames = 1e-15, 0
 	for seq_name in seq_eval:
 		seq_file = os.path.join(det_root, seq_name+'.txt')
 		seq_dets, flag = load_detection(seq_file) 				# load detection
@@ -97,9 +97,12 @@ def main_per_cat(cfg, cat, log, ID_start):
 			eval_file_dict[index].close()
 			ID_start = max(ID_start, tracker.ID_count[index])
 
-	print_log('%s, %25s: %4.f seconds for %5d frames or %6.1f FPS, metric is %s = %.2f' % \
-		(cfg.dataset, result_sha, total_time, total_frames, total_frames / total_time, \
-		tracker.metric, tracker.thres), log=log)
+	if seq_count > 0:
+		print_log('%s, %25s: %4.f seconds for %5d frames or %6.1f FPS, metric is %s = %.2f' % \
+			(cfg.dataset, result_sha, total_time, total_frames, total_frames / total_time, \
+			tracker.metric, tracker.thres), log=log)
+	else:
+		print_log('No %s detections' % result_sha, log=log)
 	
 	return ID_start
 

@@ -130,7 +130,8 @@ def find_all_frames(root_dir, subset, data_suffix, seq_list):
 			data_dir = os.path.join(root_dir, subset_tmp, 'trk_withid'+data_suffix, seq_tmp)			# pointrcnn_ped
 			if not is_path_exists(data_dir):
 				print('%s dir not exist' % data_dir)
-				assert False, 'error'
+				# assert False, 'error'
+				continue
 
 			# extract frame string from this category
 			frame_list, _ = load_list_from_folder(data_dir)

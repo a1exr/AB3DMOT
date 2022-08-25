@@ -181,10 +181,10 @@ class AB3DMOT(object):
 			trk_tmp.x, trk_tmp.y, trk_tmp.z = compensated[0]
 
 			# update compensated state in the Kalman filter
-			try:
-				self.trackers[index].kf.x[:3] = copy.copy(compensated).reshape((-1))
-			except:
-				self.trackers[index].kf.x[:3] = copy.copy(compensated).reshape((-1, 1))
+			# try:
+			# 	self.trackers[index].kf.x[:2] = copy.copy(compensated).reshape((-1))[:2]
+			# except:
+			self.trackers[index].kf.x[:2] = copy.copy(compensated).reshape((-1, 1))[:2]
 
 		return trks
 
@@ -237,12 +237,12 @@ class AB3DMOT(object):
 			if kf_tmp.id == self.debug_id:
 				print('After prediction')
 				print(kf_tmp.kf.x.reshape((-1)))
-			kf_tmp.kf.x[3] = self.within_range(kf_tmp.kf.x[3])
+			kf_tmp.kf.x[2] = self.within_range(kf_tmp.kf.x[2])
 
 			# update statistics
-			kf_tmp.time_since_update += 1 		
-			trk_tmp = kf_tmp.kf.x.reshape((-1))[:7]
-			trks.append(Box3D.array2bbox(trk_tmp))
+			kf_tmp.time_since_update += 1
+			x_3d = convert_x_2d_to_3d(kf_tmp)
+			trks.append(Box3D.array2bbox(x_3d))
 
 		return trks
 
@@ -261,20 +261,21 @@ class AB3DMOT(object):
 
 				# update orientation in propagated tracks and detected boxes so that they are within 90 degree
 				bbox3d = Box3D.bbox2array(dets[d[0]])
-				trk.kf.x[3], bbox3d[3] = self.orientation_correction(trk.kf.x[3], bbox3d[3])
+				bbox2d = np.concatenate((bbox3d[:2], bbox3d[3:6]), axis=0)	# x, y, theta, l, w
+				trk.kf.x[2], bbox2d[2] = self.orientation_correction(trk.kf.x[2], bbox2d[2])
 
 				if trk.id == self.debug_id:
 					print('After ego-compoensation')
 					print(trk.kf.x.reshape((-1)))
 					print('matched measurement')
-					print(bbox3d.reshape((-1)))
+					print(bbox2d.reshape((-1)))
 					# print('uncertainty')
 					# print(trk.kf.P)
 					# print('measurement noise')
 					# print(trk.kf.R)
 
 				# kalman filter update with observation
-				trk.kf.update(bbox3d)
+				trk.kf.update(bbox2d)
 
 				if trk.id == self.debug_id:
 					print('after matching')
@@ -282,7 +283,7 @@ class AB3DMOT(object):
 					print('\n current velocity')
 					print(trk.get_velocity())
 
-				trk.kf.x[3] = self.within_range(trk.kf.x[3])
+				trk.kf.x[2] = self.within_range(trk.kf.x[2])
 				trk.info = info[d, :][0]
 
 			# debug use only
@@ -311,8 +312,10 @@ class AB3DMOT(object):
 		num_trks = len(self.trackers)
 		results = []
 		for trk in reversed(self.trackers):
+			x_3d = convert_x_2d_to_3d(trk)
+
 			# change format from [x,y,z,theta,l,w,h] to [h,w,l,x,y,z,theta]
-			d = Box3D.array2bbox(trk.kf.x[:7].reshape((7, )))     # bbox location self
+			d = Box3D.array2bbox(x_3d)     # bbox location self
 			d = Box3D.bbox2array_raw(d)
 
 			if ((trk.time_since_update < self.max_age) and (trk.hits >= self.min_hits or self.frame_count <= self.min_hits)):      
@@ -478,3 +481,13 @@ class AB3DMOT(object):
 			print_log('', log=self.log, display=False)
 
 		return results, affi
+
+
+def convert_x_2d_to_3d(trk):
+
+	x_2d = trk.kf.x[:5].reshape((5, ))
+	x_3d = trk.initial_pos.copy()
+	x_3d[:2] = x_2d[:2]
+	x_3d[3:6] = x_2d[2:5]
+
+	return x_3d
