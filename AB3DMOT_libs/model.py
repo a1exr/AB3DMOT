@@ -184,7 +184,7 @@ class AB3DMOT(object):
 			# try:
 			# 	self.trackers[index].kf.x[:2] = copy.copy(compensated).reshape((-1))[:2]
 			# except:
-			self.trackers[index].kf.x[:2] = copy.copy(compensated).reshape((-1, 1))[:2]
+			self.trackers[index].kf.x[:2] = copy.copy(compensated).reshape((-1, 1))[[0, 2]]
 
 		return trks
 
@@ -261,7 +261,7 @@ class AB3DMOT(object):
 
 				# update orientation in propagated tracks and detected boxes so that they are within 90 degree
 				bbox3d = Box3D.bbox2array(dets[d[0]])
-				bbox2d = np.concatenate((bbox3d[:2], bbox3d[3:6]), axis=0)	# x, y, theta, l, w
+				bbox2d = np.concatenate((bbox3d[:1], bbox3d[2:6]), axis=0)	# x, z, theta, l, w
 				trk.kf.x[2], bbox2d[2] = self.orientation_correction(trk.kf.x[2], bbox2d[2])
 
 				if trk.id == self.debug_id:
@@ -487,7 +487,7 @@ def convert_x_2d_to_3d(trk):
 
 	x_2d = trk.kf.x[:5].reshape((5, ))
 	x_3d = trk.initial_pos.copy()
-	x_3d[:2] = x_2d[:2]
-	x_3d[3:6] = x_2d[2:5]
+	x_3d[0] = x_2d[0]
+	x_3d[2:6] = x_2d[1:5]
 
 	return x_3d

@@ -65,24 +65,29 @@ class Filter(object):
 # 		return self.kf.x[7:]
 
 
-class KF(Filter):	# new version
+class KF(Filter):	# 2D BEV: xz
+	# 		z
+	#		|
+	#       |_____ x
+	#      /
+	#    y/
 	def __init__(self, bbox3D, info, ID):
 		super().__init__(bbox3D, info, ID)
 
 		self.kf = KalmanFilter(dim_x=10, dim_z=5)       
 		# There is no need to use EKF here as the measurement and state are in the same space with linear relationship
 
-		# state x dimension 10: x, y, theta, l, w, dx, dy, dtheta, dl, dw
-		# constant velocity model: x' = x + dx, y' = y + dy, theta' = theta + dtheta, l' = l + dl, w' = w + dw 
+		# state x dimension 10: x, z, theta, l, w, dx, dz, dtheta, dl, dw
+		# constant velocity model: x' = x + dx, z' = z + dz, theta' = theta + dtheta, l' = l + dl, w' = w + dw 
 		# while all others (dx, dy, dtheta, dl, dw) remain the same
 		# state transition matrix, dim_x * dim_x
 		self.kf.F = np.array([[1,0,0,0,0,1,0,0,0,0],    # x' = x + dx
-		                      [0,1,0,0,0,0,1,0,0,0],    # y' = y + dy
+		                      [0,1,0,0,0,0,1,0,0,0],    # z' = z + dz
 		                      [0,0,1,0,0,0,0,1,0,0],  	# theta' = theta + dtheta
 		                      [0,0,0,1,0,0,0,0,1,0],	# l' = l + dl
 		                      [0,0,0,0,1,0,0,0,0,1],	# w' = w + dw
 		                      [0,0,0,0,0,1,0,0,0,0],	# dx
-		                      [0,0,0,0,0,0,1,0,0,0],	# dy
+		                      [0,0,0,0,0,0,1,0,0,0],	# dz
 		                      [0,0,0,0,0,0,0,1,0,0],	# dtheta
 		                      [0,0,0,0,0,0,0,0,1,0],	# dl
 		                      [0,0,0,0,0,0,0,0,0,1]])	# dw     
@@ -99,13 +104,13 @@ class KF(Filter):	# new version
 
 		# initial state uncertainty at time 0
 		# Given a single data, the initial velocity is very uncertain, so give a high uncertainty to start
-		self.kf.P = np.array([[10,0,0,0,0,0,0,0,0,0],   # x
-		                      [0,10,0,0,0,0,0,0,0,0],   # y
+		self.kf.P = np.array([[6,0,0,0,0,0,0,0,0,0],  	# x
+		                      [0,10,0,0,0,0,0,0,0,0],   # z
 		                      [0,0,.25,0,0,0,0,0,0,0],  # theta
 		                      [0,0,0,1,0,0,0,0,0,0],	# l
 		                      [0,0,0,0,1,0,0,0,0,0],	# w
-		                      [0,0,0,0,0,5,0,0,0,0],	# dx
-		                      [0,0,0,0,0,0,5,0,0,0],	# dy
+		                      [0,0,0,0,0,3,0,0,0,0],	# dx
+		                      [0,0,0,0,0,0,5,0,0,0],	# dz
 		                      [0,0,0,0,0,0,0,.1,0,0],	# dtheta
 		                      [0,0,0,0,0,0,0,0,.5,0],	# dl
 		                      [0,0,0,0,0,0,0,0,0,.5]])	# dw     
@@ -113,13 +118,13 @@ class KF(Filter):	# new version
 		# self.kf.P *= 10.
 
 		# process uncertainty, make the constant velocity part more certain
-		# self.kf.Q[5:, 5:] *= 0.01
-		self.kf.Q = self.kf.P.copy()
-		self.kf.Q[:5, :5] = 0
-		self.kf.Q[5:, 5:] *= 0.5
+		self.kf.Q[5:, 5:] *= 0.01
+		# self.kf.Q = self.kf.P.copy()
+		# self.kf.Q[:5, :5] = 0
+		# self.kf.Q[5:, 5:] *= 0.5
 
 		# initialize data
-		x_2d = np.concatenate((self.initial_pos[:2], self.initial_pos[3:6]), axis=0)	# x, y, theta, l, w
+		x_2d = np.concatenate((self.initial_pos[:1], self.initial_pos[2:6]), axis=0)	# x, z, theta, l, w
 		self.kf.x[:5] = x_2d.reshape((5, 1))
 
 	def compute_innovation_matrix(self):
