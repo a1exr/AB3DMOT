@@ -12,10 +12,18 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             // "cwd": "${workspaceRoot}/Xinshuo_PyToolbox",
+            // "args": ["nuscenes_gt2kitti_trk","--split", "val"]   // Dataset Preparation @ export_kitti.py
+            // "args": ["nuscenes_obj_result2kitti", "--result_name","BEVFormer","--split","val"]  // 3D Object Detection @ export_kitti.py
+            // "args": ["--dataset","nuScenes","--det_name","BEVFormer","--split","val"]  // 3D Object Detection @ scripts/pre_processing/convert_det2input.py
+            // "args": ["--dataset","nuScenes","--det_name","BEVFormer","--split","val"]  // 3D Multi-Object Tracking @ main.py
+            // "args": ["kitti_trk_result2nuscenes","--result_name","BEVFormer_val_H1","--split","val"]  // 3D MOT Evaluation @ export_kitti.py
+            // 3D MOT Evaluation @ evaluate.py
+            // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/2D_model_detTH_xz_Rdiff_customQ_val/track_results_nusc.json","--eval_set","val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/2D_model_detTH_xz_Rdiff_customQ_val/eval_track"]
+
+            // "args": ["nuscenes_obj_result2kitti", "--result_name","BEVFormer","--split","mini_val"]  // 3D Object Detection @ export_kitti.py
             "args": ["--dataset","nuScenes","--det_name","BEVFormer","--split","mini_val"]
             // "args": ["kitti_trk_result2nuscenes","--result_name","BEVFormer_mini_val_H1","--split","mini_val"]
-            // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base_mini/SORT_type_hungar_v8_2D_model_detTH_xz/track_results_nusc.json","--eval_set","mini_val","--version","v1.0-mini","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base_mini/SORT_type_hungar_v8_2D_model_detTH_xz/eval_track"]
-            // "args": ["nuscenes_gt2kitti_trk","--split","val"]
+            // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base_mini/2D_model_detTH_xz_Rdiff_customQP_mini_val/track_results_nusc.json","--eval_set","mini_val","--version","v1.0-mini","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base_mini/2D_model_detTH_xz_Rdiff_customQP_mini_val/eval_track"]
         }
     ]
 }

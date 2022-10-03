@@ -463,8 +463,12 @@ class AB3DMOT(object):
 
 		# output existing valid tracks
 		results = self.output()
-		if len(results) > 0: results = [np.concatenate(results)]		# h,w,l,x,y,z,theta, ID, other info, confidence
-		else:            	 results = [np.empty((0, 15))]
+		if len(results) > 0:
+			results = [np.concatenate(results)]		# h,w,l,x,y,z,theta, ID, other info, confidence
+			P_sigmas = [np.sqrt(np.diag(tracker.kf.P)) for tracker in self.trackers]
+		else:
+			results = [np.empty((0, 15))]
+			P_sigmas = [np.empty((0, 10))]
 		self.id_now_output = results[0][:, 7].tolist()					# only the active tracks that are outputed
 
 		# post-processing affinity to convert to the affinity between resulting tracklets
@@ -480,7 +484,7 @@ class AB3DMOT(object):
 			print_log(results[result_index][:, :8], log=self.log, display=False)
 			print_log('', log=self.log, display=False)
 
-		return results, affi
+		return results, affi, P_sigmas
 
 
 def convert_x_2d_to_3d(trk):

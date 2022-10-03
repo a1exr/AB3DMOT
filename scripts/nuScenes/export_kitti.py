@@ -65,7 +65,7 @@ class KittiConverter:
                  nusc_kitti_root: str = './data/nuScenes/nuKITTI',   
                  data_root: str = './data/nuScenes/data',
                  result_root: str = './results/nuScenes/',
-                 result_name: str = 'megvii_val_H1',         
+                 result_name: str = 'megvii_val_H1',     
                  cam_name: str = 'CAM_FRONT',
                  lidar_name: str = 'LIDAR_TOP',            
                  split: str = 'val'):
@@ -271,10 +271,14 @@ class KittiConverter:
         evaluate_file = os.path.join(self.nusc_kitti_root, 'tracking', 'evaluate_tracking.seqmap.%s' % self.split)
         evaluate_file = open(evaluate_file, 'w')
 
+        object_corr_file = os.path.join(self.nusc_kitti_root, 'object/produced/correspondence', '%s.txt' % self.split)
+        mkdir_if_missing(object_corr_file); object_corr_file = open(object_corr_file, 'w')
+
         # go through every scene
         scene_splits = create_splits_scenes(verbose=False)
         scene_names = scene_splits[self.split]
         count_scene = 0
+        count_total_frame_id = 0
         for scene_name in scene_names:
 
             # create output folders that have subfolders at every scene
@@ -302,6 +306,7 @@ class KittiConverter:
 
                 # write id to the split file
                 corres_file.write('%06d %s\n' % (frame_id, sample_token))
+                object_corr_file.write('%06d %s\n' % (count_total_frame_id, sample_token))
 
                 # get sensor and transformation between KITTI
                 pose_record, cs_record_lid, cs_record_cam, filename_lid_full, filename_cam_full = \
@@ -337,6 +342,7 @@ class KittiConverter:
                         label_file.write('%d %d %s\n' % (frame_id, ID, output))
 
                 frame_id += 1
+                count_total_frame_id += 1
 
             count_scene += 1
             evaluate_file.write('%s empty 000000 %06d\n' % (scene_name, len(sample_tokens)))
@@ -347,7 +353,7 @@ class KittiConverter:
             with open(oxts_file, 'w') as f:
                 json.dump(ego_pose_list, f)
 
-        split_file.close(); evaluate_file.close()
+        split_file.close(); evaluate_file.close(); object_corr_file.close()
 
     def nuscenes_obj_result2kitti(self):
         # convert the detection results in NuScenes format to KITTI object format

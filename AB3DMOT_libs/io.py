@@ -18,7 +18,7 @@ def load_detection(file):
 	if dets.shape[1] == 0:		# if no detection in a sequence
 		return [], False
 
-	filtered_dets = np.array([det for det in dets if det[6] > 0.3])
+	filtered_dets = np.array([det for det in dets if det[6] > 0.3])		# TODO: set as parameter
 	
 	if len(filtered_dets.shape) == 1:
 		filtered_dets = np.expand_dims(filtered_dets, axis=0) 	
@@ -77,27 +77,37 @@ def get_saving_dir(eval_dir_dict, seq_name, save_dir, num_hypo):
 		save_trk_dir[index] = os.path.join(save_dir, 'trk_withid_%d' % index, seq_name); mkdir_if_missing(save_trk_dir[index])
 	affinity_dir = os.path.join(save_dir, 'affi', seq_name); mkdir_if_missing(affinity_dir)
 	affinity_vis = os.path.join(save_dir, 'affi_vis', seq_name); mkdir_if_missing(affinity_vis)
+	graphs_info_dir = os.path.join(save_dir, 'graphs_info'); mkdir_if_missing(graphs_info_dir),
+	graphs_info_file = open(os.path.join(graphs_info_dir, seq_name + '.txt'), 'w')
 
-	return eval_file_dict, save_trk_dir, affinity_dir, affinity_vis
+	return eval_file_dict, save_trk_dir, affinity_dir, affinity_vis, graphs_info_file
 
-def save_results(res, save_trk_file, eval_file, det_id2str, frame, score_threshold):
+def save_results(res, P_sigmas, save_trk_file, eval_file, graphs_info_file, det_id2str, frame, score_threshold):
 
 	# box3d in the format of h, w, l, x, y, z, theta in camera coordinate
 	bbox3d_tmp, id_tmp, ori_tmp, type_tmp, bbox2d_tmp_trk, conf_tmp = \
 		res[0:7], res[7], res[8], det_id2str[res[9]], res[10:14], res[14] 		
 	 
 	# save in detection format with track ID, can be used for dection evaluation and tracking visualization
-	str_to_srite = '%s -1 -1 %f %f %f %f %f %f %f %f %f %f %f %f %f %d\n' % (type_tmp, ori_tmp,
+	str_to_write = '%s -1 -1 %f %f %f %f %f %f %f %f %f %f %f %f %f %d\n' % (type_tmp, ori_tmp,
 		bbox2d_tmp_trk[0], bbox2d_tmp_trk[1], bbox2d_tmp_trk[2], bbox2d_tmp_trk[3], 
 		bbox3d_tmp[0], bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[4], bbox3d_tmp[5], bbox3d_tmp[6], conf_tmp, id_tmp)
-	save_trk_file.write(str_to_srite)
+	save_trk_file.write(str_to_write)
 
 	# save in tracking format, for 3D MOT evaluation
 	if conf_tmp >= score_threshold:
-		str_to_srite = '%d %d %s 0 0 %f %f %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, 
+		str_to_write = '%d %d %s 0 0 %f %f %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, 
 			type_tmp, ori_tmp, bbox2d_tmp_trk[0], bbox2d_tmp_trk[1], bbox2d_tmp_trk[2], bbox2d_tmp_trk[3], 
 			bbox3d_tmp[0], bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[4], bbox3d_tmp[5], bbox3d_tmp[6], conf_tmp)
-		eval_file.write(str_to_srite)
+		eval_file.write(str_to_write)
+
+	# save for graphic visualizations
+	if conf_tmp >= 0.4:	# TODO: set as config
+		# print(f'{frame} {id_tmp} {type_tmp}')
+		str_to_write = '%d %d %s %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, type_tmp, conf_tmp,
+		bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[5], bbox3d_tmp[6],
+		P_sigmas[0], P_sigmas[1], P_sigmas[2], P_sigmas[3], P_sigmas[4])
+		graphs_info_file.write(str_to_write)
 
 def save_affinity(affi_data, save_path):
 	######### save txt files for faster check, with aligned formatting

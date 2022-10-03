@@ -100,7 +100,12 @@ class KF(Filter):	# 2D BEV: xz
 		                      [0,0,0,0,1,0,0,0,0,0]])
 
 		# measurement uncertainty, uncomment if not super trust the measurement data due to detection noise
-		# self.kf.R[0:,0:] *= 10.   
+		# self.kf.R[0:,0:] *= 10.
+		self.kf.R = np.array([[0.25,0,0,0,0],  	# x  
+		                      [0,1.8,0,0,0],  	# z
+		                      [0,0,1,0,0], 	# theta
+		                      [0,0,0,0.8,0],	# l
+		                      [0,0,0,0,0.1]]) 	# w
 
 		# initial state uncertainty at time 0
 		# Given a single data, the initial velocity is very uncertain, so give a high uncertainty to start
@@ -118,10 +123,18 @@ class KF(Filter):	# 2D BEV: xz
 		# self.kf.P *= 10.
 
 		# process uncertainty, make the constant velocity part more certain
-		self.kf.Q[5:, 5:] *= 0.01
-		# self.kf.Q = self.kf.P.copy()
 		# self.kf.Q[:5, :5] = 0
 		# self.kf.Q[5:, 5:] *= 0.5
+		self.kf.Q = np.array([[0,0,0,0,0,1,0,0,0,0],    # x
+		                      [0,0,0,0,0,0,1,0,0,0],    # z
+		                      [0,0,0,0,0,0,0,1,0,0],  	# theta
+		                      [0,0,0,0,0,0,0,0,1,0],	# l
+		                      [0,0,0,0,0,0,0,0,0,1],	# w
+		                      [0,0,0,0,0,0.25,0,0,0,0],	# dx
+		                      [0,0,0,0,0,0,0.25,0,0,0],	# dz
+		                      [0,0,0,0,0,0,0,0.1,0,0],	# dtheta
+		                      [0,0,0,0,0,0,0,0,0.25,0],	# dl
+		                      [0,0,0,0,0,0,0,0,0,0.25]])# dw    
 
 		# initialize data
 		x_2d = np.concatenate((self.initial_pos[:1], self.initial_pos[2:6]), axis=0)	# x, z, theta, l, w

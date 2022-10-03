@@ -15,7 +15,7 @@ def parse_args():
 	parser.add_argument('--dataset', type=str, default='nuScenes', help='KITTI, nuScenes')
 	parser.add_argument('--split', type=str, default='', help='train, val, test, mini_train, mini_val')
 	parser.add_argument('--det_name', type=str, default='', help='BEVFormer / centerpoint / megvili')
-	parser.add_argument('--version_name', type=str, default='AB3DMOT', help='tracker version title')
+	# parser.add_argument('--results_title', type=str, default='', help='tracker version title')
 	args = parser.parse_args()
 	return args
 	
@@ -23,7 +23,7 @@ def main_per_cat(cfg, cat, log, ID_start):
 
 	# get data-cat-split specific path
 	result_sha = '%s_%s_%s' % (cfg.det_name,  cat, cfg.split)
-	det_root = os.path.join('./data', cfg.dataset, 'detection', result_sha)
+	det_root = os.path.join('./data', cfg.dataset, 'detection', f'{cfg.det_name}_{cfg.split}', result_sha)
 	subfolder, det_id2str, hw, seq_eval, data_root = get_subfolder_seq(cfg.dataset, cfg.split)
 	trk_root = os.path.join(data_root, 'tracking')
 	save_dir = os.path.join(cfg.save_root, result_sha + '_H%d' % cfg.num_hypo); mkdir_if_missing(save_dir)
@@ -42,7 +42,7 @@ def main_per_cat(cfg, cat, log, ID_start):
 		if not flag: continue									# no detection
 
 		# create folders for saving
-		eval_file_dict, save_trk_dir, affinity_dir, affinity_vis = \
+		eval_file_dict, save_trk_dir, affinity_dir, affinity_vis, graphs_info_file = \
 			get_saving_dir(eval_dir_dict, seq_name, save_dir, cfg.num_hypo)	
 
 		# initialize tracker
@@ -63,7 +63,7 @@ def main_per_cat(cfg, cat, log, ID_start):
 			# tracking by detection
 			dets_frame = get_frame_det(seq_dets, frame)
 			since = time.time()
-			results, affi = tracker.track(dets_frame, frame, seq_name)		
+			results, affi, P_sigmas = tracker.track(dets_frame, frame, seq_name)		
 			total_time += time.time() - since
 
 			# saving affinity matrix, between the past frame and current frame
@@ -85,8 +85,8 @@ def main_per_cat(cfg, cat, log, ID_start):
 			for hypo in range(cfg.num_hypo):
 				save_trk_file = os.path.join(save_trk_dir[hypo], '%06d.txt' % frame)
 				save_trk_file = open(save_trk_file, 'w')
-				for result_tmp in results[hypo]:				# N x 15
-					save_results(result_tmp, save_trk_file, eval_file_dict[hypo], \
+				for result_tmp, P_tmp in zip(results[hypo], P_sigmas):				# N x 15
+					save_results(result_tmp, P_tmp, save_trk_file, eval_file_dict[hypo], graphs_info_file, \
 						det_id2str, frame, cfg.score_threshold)
 				save_trk_file.close()
 
@@ -115,6 +115,7 @@ def main(args):
 	# overwrite split and detection method
 	if args.split != '': cfg.split = args.split
 	if args.det_name != '': cfg.det_name = args.det_name
+	# cfg.save_root = os.path.join(cfg.save_root, args.results_title)
 
 	# print configs
 	time_str = get_timestring()

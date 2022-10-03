@@ -55,7 +55,7 @@ def scene_to_samples(nusc, scene_name: str) -> List[str]:
         next_sample_token = sample['next']
         sample = nusc.get('sample', next_sample_token)
         samples.append(sample['token'])
-        if sample['next'] is '': break
+        if sample['next'] == '': break
 
     return samples
 
