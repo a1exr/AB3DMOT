@@ -65,6 +65,8 @@ class KittiConverter:
                  nusc_kitti_root: str = './data/nuScenes/nuKITTI',   
                  data_root: str = './data/nuScenes/data',
                  result_root: str = './results/nuScenes/',
+                 track_result_root: str = '../mmdetection3d/BEVFormer/test/bevformer_base',
+                 results_title: str = '',
                  result_name: str = 'megvii_val_H1',     
                  cam_name: str = 'CAM_FRONT',
                  lidar_name: str = 'LIDAR_TOP',            
@@ -81,9 +83,12 @@ class KittiConverter:
         self.cam_name = cam_name
         self.lidar_name = lidar_name
         self.split = split
-        if split in ['train', 'val', 'trainval']: self.nusc_version = 'v1.0-trainval'
-        elif split in ['mini', 'mini_val']:       self.nusc_version = 'v1.0-mini'
-        elif split == 'test':                     self.nusc_version = 'v1.0-test'
+        if split in ['train', 'val', 'trainval', 'custom_val']: self.nusc_version = 'v1.0-trainval'
+        elif split in ['mini', 'mini_val']:                     self.nusc_version = 'v1.0-mini'
+        elif split == 'test':                                   self.nusc_version = 'v1.0-test'
+        if split == 'custom_val':   self.split = 'val'
+        self.track_result_root = track_result_root
+        self.results_title = results_title
         self.result_name = result_name
         self.data_root = data_root
         self.result_root = result_root
@@ -645,13 +650,16 @@ class KittiConverter:
 
         # path
         tmp_root_dir = os.path.join(self.nusc_kitti_root, 'tracking', self.split)
-        results_dir = os.path.join(self.result_root, self.result_name, 'data_0')
+        results_dir = os.path.join(self.result_root, self.results_title, self.result_name, 'data_0')
         corres_dir = os.path.join(tmp_root_dir, '../produced/correspondence', self.split)
         calib_dir = os.path.join(tmp_root_dir, 'calib')
 
+        results_list = os.listdir(results_dir)
         # loop over all sequences
         corres_list, num_list = load_list_from_folder(corres_dir)
         for corres_file in corres_list:
+            if os.path.basename(corres_file) not in results_list: continue
+
             seq_name = fileparts(corres_file)[1]
             sys.stdout.write('converting %s\r' % (seq_name))
             sys.stdout.flush()
@@ -695,11 +703,16 @@ class KittiConverter:
             'meta': meta,
             'results': results
         }
-        submission_path = os.path.join(self.result_root, self.result_name, 'results_%s.json' % (self.split))
+        submission_path = os.path.join(self.result_root, self.results_title, self.result_name, 'results_%s.json' % (self.split))
         mkdir_if_missing(submission_path)
         print('Writing submission to: %s' % submission_path)
         with open(submission_path, 'w') as f:
             json.dump(submission, f, indent=2)
+
+        track_path = os.path.join(self.track_result_root, self.results_title)
+        os.makedirs(track_path, exist_ok=True)
+        track_path = os.path.join(track_path, 'track_results_nusc.json')
+        copyfile(submission_path, track_path)
 
 if __name__ == '__main__':
     fire.Fire(KittiConverter)

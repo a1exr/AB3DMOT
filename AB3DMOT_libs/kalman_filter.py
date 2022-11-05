@@ -2,11 +2,12 @@ import numpy as np
 from filterpy.kalman import KalmanFilter, UnscentedKalmanFilter, MerweScaledSigmaPoints
 
 class Filter(object):
-	def __init__(self, bbox3D, info, ID):
+	def __init__(self, bbox3D, info, ID, cat):
 
 		self.initial_pos = bbox3D
 		self.time_since_update = 0
 		self.id = ID
+		self.cat = cat
 		self.hits = 1           		# number of total hits including the first detection
 		self.info = info        		# other information associated	
 
@@ -71,8 +72,8 @@ class KF(Filter):	# 2D BEV: xz
 	#       |_____ x
 	#      /
 	#    y/
-	def __init__(self, bbox3D, info, ID):
-		super().__init__(bbox3D, info, ID)
+	def __init__(self, bbox3D, info, ID, cat):
+		super().__init__(bbox3D, info, ID, cat)
 
 		self.kf = KalmanFilter(dim_x=10, dim_z=5)       
 		# There is no need to use EKF here as the measurement and state are in the same space with linear relationship
@@ -99,42 +100,165 @@ class KF(Filter):	# 2D BEV: xz
 		                      [0,0,0,1,0,0,0,0,0,0],
 		                      [0,0,0,0,1,0,0,0,0,0]])
 
-		# measurement uncertainty, uncomment if not super trust the measurement data due to detection noise
-		# self.kf.R[0:,0:] *= 10.
-		self.kf.R = np.array([[0.25,0,0,0,0],  	# x  
-		                      [0,1.8,0,0,0],  	# z
-		                      [0,0,1,0,0], 	# theta
-		                      [0,0,0,0.8,0],	# l
-		                      [0,0,0,0,0.1]]) 	# w
+		if cat == 'Car':
+			# measurement uncertainty
+			self.kf.R = np.array([[0.25,0,0,0,0],  	# x  
+								  [0,1.8,0,0,0],  	# z
+								  [0,0,0.05,0,0], 	# theta
+								  [0,0,0,0.2,0],	# l
+								  [0,0,0,0,0.05]]) 	# w
 
-		# initial state uncertainty at time 0
-		# Given a single data, the initial velocity is very uncertain, so give a high uncertainty to start
-		self.kf.P = np.array([[6,0,0,0,0,0,0,0,0,0],  	# x
-		                      [0,10,0,0,0,0,0,0,0,0],   # z
-		                      [0,0,.25,0,0,0,0,0,0,0],  # theta
-		                      [0,0,0,1,0,0,0,0,0,0],	# l
-		                      [0,0,0,0,1,0,0,0,0,0],	# w
-		                      [0,0,0,0,0,3,0,0,0,0],	# dx
-		                      [0,0,0,0,0,0,5,0,0,0],	# dz
-		                      [0,0,0,0,0,0,0,.1,0,0],	# dtheta
-		                      [0,0,0,0,0,0,0,0,.5,0],	# dl
-		                      [0,0,0,0,0,0,0,0,0,.5]])	# dw     
-		# self.kf.P[5:, 5:] *= 1000. 	
-		# self.kf.P *= 10.
+			# initial state uncertainty at time 0
+			self.kf.P = np.array([[6,0,0,0,0,0,0,0,0,0],  	# x
+								  [0,10,0,0,0,0,0,0,0,0],   # z
+								  [0,0,.2,0,0,0,0,0,0,0],  # theta
+								  [0,0,0,1,0,0,0,0,0,0],	# l
+								  [0,0,0,0,.5,0,0,0,0,0],	# w
+								  [0,0,0,0,0,3,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,5,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,.1,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,.5,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,.25]])	# dw
 
-		# process uncertainty, make the constant velocity part more certain
-		# self.kf.Q[:5, :5] = 0
-		# self.kf.Q[5:, 5:] *= 0.5
-		self.kf.Q = np.array([[0,0,0,0,0,1,0,0,0,0],    # x
-		                      [0,0,0,0,0,0,1,0,0,0],    # z
-		                      [0,0,0,0,0,0,0,1,0,0],  	# theta
-		                      [0,0,0,0,0,0,0,0,1,0],	# l
-		                      [0,0,0,0,0,0,0,0,0,1],	# w
-		                      [0,0,0,0,0,0.25,0,0,0,0],	# dx
-		                      [0,0,0,0,0,0,0.25,0,0,0],	# dz
-		                      [0,0,0,0,0,0,0,0.1,0,0],	# dtheta
-		                      [0,0,0,0,0,0,0,0,0.25,0],	# dl
-		                      [0,0,0,0,0,0,0,0,0,0.25]])# dw    
+			# process uncertainty, make the constant velocity part more certain
+			self.kf.Q = np.array([[0,0,0,0,0,0,0,0,0,0],    # x
+								  [0,0,0,0,0,0,0,0,0,0],    # z
+								  [0,0,0,0,0,0,0,0,0,0],  	# theta
+								  [0,0,0,0,0,0,0,0,0,0],	# l
+								  [0,0,0,0,0,0,0,0,0,0],	# w
+								  [0,0,0,0,0,.25,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,.25,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,.1,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,.25,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,.25]])	# dw         
+
+		elif cat == 'Pedestrian':
+			# measurement uncertainty
+			self.kf.R = np.array([[0.25,0,0,0,0],  	# x  
+								  [0,0.7,0,0,0],  	# z
+								  [0,0,0.05,0,0], 	# theta
+								  [0,0,0,0.03,0],	# l
+								  [0,0,0,0,0.03]]) 	# w
+
+			# initial state uncertainty at time 0
+			self.kf.P = np.array([[5,0,0,0,0,0,0,0,0,0],  	# x
+								  [0,7,0,0,0,0,0,0,0,0],   	# z
+								  [0,0,.1,0,0,0,0,0,0,0],  	# theta
+								  [0,0,0,.5,0,0,0,0,0,0],	# l
+								  [0,0,0,0,.5,0,0,0,0,0],	# w
+								  [0,0,0,0,0,2.5,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,3.5,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,.05,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,.25,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,.25]])	# dw     
+		
+			# process uncertainty, make the constant velocity part more certain
+			self.kf.Q = np.array([[0,0,0,0,0,0,0,0,0,0],    # x
+								  [0,0,0,0,0,0,0,0,0,0],    # z
+								  [0,0,0,0,0,0,0,0,0,0],  	# theta
+								  [0,0,0,0,0,0,0,0,0,0],	# l
+								  [0,0,0,0,0,0,0,0,0,0],	# w
+								  [0,0,0,0,0,0.25,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,0.25,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,0.1,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,0.25,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,0.25]])# dw    
+
+		elif cat == 'Bicycle':
+			# measurement uncertainty
+			self.kf.R = np.array([[0.25,0,0,0,0],  	# x  
+								  [0,1,0,0,0],  	# z
+								  [0,0,0.05,0,0], 	# theta
+								  [0,0,0,0.1,0],	# l
+								  [0,0,0,0,0.05]]) 	# w
+
+			# initial state uncertainty at time 0
+			self.kf.P = np.array([[5,0,0,0,0,0,0,0,0,0],  	# x
+								  [0,7,0,0,0,0,0,0,0,0],   	# z
+								  [0,0,.1,0,0,0,0,0,0,0],  	# theta
+								  [0,0,0,1,0,0,0,0,0,0],	# l
+								  [0,0,0,0,.5,0,0,0,0,0],	# w
+								  [0,0,0,0,0,2.5,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,3.5,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,.05,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,.5,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,.25]])	# dw     
+		
+			# process uncertainty, make the constant velocity part more certain
+			self.kf.Q = np.array([[0,0,0,0,0,0,0,0,0,0],    # x
+								  [0,0,0,0,0,0,0,0,0,0],    # z
+								  [0,0,0,0,0,0,0,0,0,0],  	# theta
+								  [0,0,0,0,0,0,0,0,0,0],	# l
+								  [0,0,0,0,0,0,0,0,0,0],	# w
+								  [0,0,0,0,0,0.25,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,0.25,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,0.1,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,0.25,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,0.25]])# dw    
+
+		elif cat == 'Motorcycle':
+			# measurement uncertainty
+			self.kf.R = np.array([[0.25,0,0,0,0],  	# x  
+								  [0,1.8,0,0,0],  	# z
+								  [0,0,0.05,0,0], 	# theta
+								  [0,0,0,0.2,0],	# l
+								  [0,0,0,0,0.05]]) 	# w
+
+			# initial state uncertainty at time 0
+			self.kf.P = np.array([[6,0,0,0,0,0,0,0,0,0],  	# x
+								  [0,10,0,0,0,0,0,0,0,0],   # z
+								  [0,0,.2,0,0,0,0,0,0,0],  # theta
+								  [0,0,0,1,0,0,0,0,0,0],	# l
+								  [0,0,0,0,.5,0,0,0,0,0],	# w
+								  [0,0,0,0,0,3,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,5,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,.1,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,.5,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,.25]])	# dw     
+		
+			# process uncertainty, make the constant velocity part more certain
+			self.kf.Q = np.array([[0,0,0,0,0,0,0,0,0,0],    # x
+								  [0,0,0,0,0,0,0,0,0,0],    # z
+								  [0,0,0,0,0,0,0,0,0,0],  	# theta
+								  [0,0,0,0,0,0,0,0,0,0],	# l
+								  [0,0,0,0,0,0,0,0,0,0],	# w
+								  [0,0,0,0,0,0.25,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,0.25,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,0.1,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,0.25,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,0.25]])# dw    
+
+		elif cat == 'Bus' or cat == 'Trailer' or cat == 'Truck':
+			# measurement uncertainty
+			self.kf.R = np.array([[0.25,0,0,0,0],  	# x  
+								  [0,1.8,0,0,0],  	# z
+								  [0,0,0.05,0,0], 	# theta
+								  [0,0,0,1,0],	# l
+								  [0,0,0,0,0.2]]) 	# w
+
+			# initial state uncertainty at time 0
+			self.kf.P = np.array([[6,0,0,0,0,0,0,0,0,0],  	# x
+								  [0,10,0,0,0,0,0,0,0,0],   # z
+								  [0,0,.2,0,0,0,0,0,0,0],  # theta
+								  [0,0,0,2,0,0,0,0,0,0],	# l
+								  [0,0,0,0,1,0,0,0,0,0],	# w
+								  [0,0,0,0,0,3,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,5,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,.1,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,1,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,.5]])	# dw     
+
+			# process uncertainty, make the constant velocity part more certain
+			self.kf.Q = np.array([[0,0,0,0,0,0,0,0,0,0],    # x
+								  [0,0,0,0,0,0,0,0,0,0],    # z
+								  [0,0,0,0,0,0,0,0,0,0],  	# theta
+								  [0,0,0,0,0,0,0,0,0,0],	# l
+								  [0,0,0,0,0,0,0,0,0,0],	# w
+								  [0,0,0,0,0,0.25,0,0,0,0],	# dx
+								  [0,0,0,0,0,0,0.25,0,0,0],	# dz
+								  [0,0,0,0,0,0,0,0.1,0,0],	# dtheta
+								  [0,0,0,0,0,0,0,0,0.25,0],	# dl
+								  [0,0,0,0,0,0,0,0,0,0.25]])# dw    
 
 		# initialize data
 		x_2d = np.concatenate((self.initial_pos[:1], self.initial_pos[2:6]), axis=0)	# x, z, theta, l, w

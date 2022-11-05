@@ -54,6 +54,9 @@ def get_subfolder_seq(dataset, split):
 		if split == 'test':  		seq_eval = get_split()[2]   # 150 scenes
 		if split == 'mini_train':	seq_eval = get_split()[3]	# 8 scenes
 		if split == 'mini_val':		seq_eval = get_split()[4]   # 2 scenes
+		if split == 'custom_val':
+			seq_eval = get_split()[5]   # 10 scenes
+			subfolder = 'val'
 
 		# data_root = os.path.join(file_path, '../data/nuScenes/nuKITTI') 	# path containing the nuScenes-converted KITTI root
 		data_root = './data/nuScenes/nuKITTI' 	# path containing the nuScenes-converted KITTI root

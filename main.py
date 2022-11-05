@@ -15,7 +15,7 @@ def parse_args():
 	parser.add_argument('--dataset', type=str, default='nuScenes', help='KITTI, nuScenes')
 	parser.add_argument('--split', type=str, default='', help='train, val, test, mini_train, mini_val')
 	parser.add_argument('--det_name', type=str, default='', help='BEVFormer / centerpoint / megvili')
-	# parser.add_argument('--results_title', type=str, default='', help='tracker version title')
+	parser.add_argument('--results_title', type=str, default='', help='tracker version title')
 	args = parser.parse_args()
 	return args
 	
@@ -23,10 +23,17 @@ def main_per_cat(cfg, cat, log, ID_start):
 
 	# get data-cat-split specific path
 	result_sha = '%s_%s_%s' % (cfg.det_name,  cat, cfg.split)
-	det_root = os.path.join('./data', cfg.dataset, 'detection', f'{cfg.det_name}_{cfg.split}', result_sha)
+	save_dir = os.path.join(cfg.save_root, result_sha + '_H%d' % cfg.num_hypo); mkdir_if_missing(save_dir)
+
+	data_split = [d for d in ['train', 'val', 'test'] if d in cfg.split]
+	if len(data_split) > 0: 
+		data_split = data_split[0]
+	else:
+		print_log('split name error', log=log)
+	result_sha = '%s_%s_%s' % (cfg.det_name,  cat, data_split)
+	det_root = os.path.join('./data', cfg.dataset, 'detection', f'{cfg.det_name}_{data_split}', result_sha)
 	subfolder, det_id2str, hw, seq_eval, data_root = get_subfolder_seq(cfg.dataset, cfg.split)
 	trk_root = os.path.join(data_root, 'tracking')
-	save_dir = os.path.join(cfg.save_root, result_sha + '_H%d' % cfg.num_hypo); mkdir_if_missing(save_dir)
 
 	# create eval dir for each hypothesis 
 	eval_dir_dict = dict()
@@ -115,7 +122,7 @@ def main(args):
 	# overwrite split and detection method
 	if args.split != '': cfg.split = args.split
 	if args.det_name != '': cfg.det_name = args.det_name
-	# cfg.save_root = os.path.join(cfg.save_root, args.results_title)
+	cfg.save_root = os.path.join(cfg.save_root, args.results_title)
 
 	# print configs
 	time_str = get_timestring()
@@ -135,7 +142,7 @@ def main(args):
 
 	# combine results for every category
 	print_log('\ncombining results......', log=log)
-	combine_trk_cat(cfg.split, cfg.dataset, cfg.det_name, 'H%d' % cfg.num_hypo, cfg.num_hypo)
+	combine_trk_cat(cfg.split, cfg.dataset, args.results_title, cfg.det_name, 'H%d' % cfg.num_hypo, cfg.num_hypo)
 	print_log('\nDone!', log=log)
 	log.close()
 

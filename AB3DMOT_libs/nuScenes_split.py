@@ -146,4 +146,9 @@ def get_split():
      mini_val = \
          ['scene-0103', 'scene-0916']
 
-     return train, val, test, mini_train, mini_val
+     custom_val = \
+         ['scene-0003', 'scene-0092', 'scene-0272', 'scene-0521', 'scene-0771', 'scene-0796', 'scene-0914', 'scene-0924',
+          'scene-0968', 'scene-1063']
+     # 10 scenes
+
+     return train, val, test, mini_train, mini_val, custom_val, train_detect, train_track

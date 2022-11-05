@@ -296,7 +296,7 @@ class AB3DMOT(object):
 		# dets = copy.copy(dets)
 		new_id_list = list()					# new ID generated for unmatched detections
 		for i in unmatched_dets:        			# a scalar of index
-			trk = KF(Box3D.bbox2array(dets[i]), info[i, :], self.ID_count[0])
+			trk = KF(Box3D.bbox2array(dets[i]), info[i, :], self.ID_count[0], self.cat)
 			self.trackers.append(trk)
 			new_id_list.append(trk.id)
 			# print('track ID %s has been initialized due to new detection' % trk.id)
@@ -465,7 +465,7 @@ class AB3DMOT(object):
 		results = self.output()
 		if len(results) > 0:
 			results = [np.concatenate(results)]		# h,w,l,x,y,z,theta, ID, other info, confidence
-			P_sigmas = [np.sqrt(np.diag(tracker.kf.P)) for tracker in self.trackers]
+			P_sigmas = [np.sqrt(np.diag(tracker.kf.P)) for tracker in reversed(self.trackers)]
 		else:
 			results = [np.empty((0, 15))]
 			P_sigmas = [np.empty((0, 10))]
