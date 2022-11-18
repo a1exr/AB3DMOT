@@ -82,7 +82,7 @@ def get_saving_dir(eval_dir_dict, seq_name, save_dir, num_hypo):
 
 	return eval_file_dict, save_trk_dir, affinity_dir, affinity_vis, graphs_info_file
 
-def save_results(res, P_sigmas, save_trk_file, eval_file, graphs_info_file, det_id2str, frame, score_threshold):
+def save_results(res, P_sigmas, R_sigmas, save_trk_file, eval_file, graphs_info_file, det_id2str, frame, score_threshold):
 
 	# box3d in the format of h, w, l, x, y, z, theta in camera coordinate
 	bbox3d_tmp, id_tmp, ori_tmp, type_tmp, bbox2d_tmp_trk, conf_tmp = \
@@ -104,9 +104,10 @@ def save_results(res, P_sigmas, save_trk_file, eval_file, graphs_info_file, det_
 	# save for graphic visualizations
 	if conf_tmp >= 0.4:	# TODO: set as config
 		# print(f'{frame} {id_tmp} {type_tmp}')
-		str_to_write = '%d %d %s %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, type_tmp, conf_tmp,
+		str_to_write = '%d %d %s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, type_tmp, conf_tmp,
 		bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[5], bbox3d_tmp[6],
-		P_sigmas[0], P_sigmas[1], P_sigmas[2], P_sigmas[3], P_sigmas[4])
+		P_sigmas[0], P_sigmas[1], P_sigmas[2], P_sigmas[3], P_sigmas[4],
+		R_sigmas[0], R_sigmas[1], R_sigmas[2], R_sigmas[3], R_sigmas[4])
 		graphs_info_file.write(str_to_write)
 
 def save_affinity(affi_data, save_path):

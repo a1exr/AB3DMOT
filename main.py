@@ -70,7 +70,7 @@ def main_per_cat(cfg, cat, log, ID_start):
 			# tracking by detection
 			dets_frame = get_frame_det(seq_dets, frame)
 			since = time.time()
-			results, affi, P_sigmas = tracker.track(dets_frame, frame, seq_name)		
+			results, affi, P_sigmas, R_sigmas = tracker.track(dets_frame, frame, seq_name)		
 			total_time += time.time() - since
 
 			# saving affinity matrix, between the past frame and current frame
@@ -92,8 +92,8 @@ def main_per_cat(cfg, cat, log, ID_start):
 			for hypo in range(cfg.num_hypo):
 				save_trk_file = os.path.join(save_trk_dir[hypo], '%06d.txt' % frame)
 				save_trk_file = open(save_trk_file, 'w')
-				for result_tmp, P_tmp in zip(results[hypo], P_sigmas):				# N x 15
-					save_results(result_tmp, P_tmp, save_trk_file, eval_file_dict[hypo], graphs_info_file, \
+				for result_tmp, P_tmp, R_tmp in zip(results[hypo], P_sigmas, R_sigmas):				# N x 15
+					save_results(result_tmp, P_tmp, R_tmp, save_trk_file, eval_file_dict[hypo], graphs_info_file, \
 						det_id2str, frame, cfg.score_threshold)
 				save_trk_file.close()
 

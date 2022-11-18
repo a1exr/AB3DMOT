@@ -274,8 +274,16 @@ class AB3DMOT(object):
 					# print('measurement noise')
 					# print(trk.kf.R)
 
+				dist_norm = np.linalg.norm(bbox2d[:2])
+				if dist_norm < 1.0: dist_norm = 1.0
+				dist_score = 1.0 / (1.0 + math.exp(math.sqrt(dist_norm) - 6))
+				confidence = trk.info[6] if trk.info[6] > 0 else 1.0e-5
+				mean_score = (confidence + dist_score) / 2.0
+
+				trk.kf.cur_R = trk.kf.R / mean_score
 				# kalman filter update with observation
-				trk.kf.update(bbox2d)
+				trk.kf.update(z=bbox2d, R=trk.kf.cur_R)
+				# trk.kf.update(z=bbox2d)
 
 				if trk.id == self.debug_id:
 					print('after matching')
@@ -466,9 +474,11 @@ class AB3DMOT(object):
 		if len(results) > 0:
 			results = [np.concatenate(results)]		# h,w,l,x,y,z,theta, ID, other info, confidence
 			P_sigmas = [np.sqrt(np.diag(tracker.kf.P)) for tracker in reversed(self.trackers)]
+			R_sigmas = [np.sqrt(np.diag(tracker.kf.cur_R)) for tracker in reversed(self.trackers)]
 		else:
 			results = [np.empty((0, 15))]
 			P_sigmas = [np.empty((0, 10))]
+			R_sigmas = [np.empty((0, 5))]
 		self.id_now_output = results[0][:, 7].tolist()					# only the active tracks that are outputed
 
 		# post-processing affinity to convert to the affinity between resulting tracklets
@@ -484,7 +494,7 @@ class AB3DMOT(object):
 			print_log(results[result_index][:, :8], log=self.log, display=False)
 			print_log('', log=self.log, display=False)
 
-		return results, affi, P_sigmas
+		return results, affi, P_sigmas, R_sigmas
 
 
 def convert_x_2d_to_3d(trk):
