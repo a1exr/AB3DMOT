@@ -37,7 +37,8 @@ def combine_dets(dataset, split, det_name):
 	trk_corr_dir  = os.path.join(data_root, 'tracking/produced/correspondence', subfolder)
 
 	# save dir
-	save_root = os.path.join('./data', dataset, 'detection')
+	save_root = os.path.join('./data', dataset, 'detection', '%s_%s' % (det_name, split))
+	mkdir_if_missing(save_root)
 
 	# loop through each sequence
 	for seq in seq_eval:
@@ -46,7 +47,8 @@ def combine_dets(dataset, split, det_name):
 		save_file = dict()
 		for cat in list(det_id2str.values()) + ['all']:
 			save_file[cat] = os.path.join(save_root, '%s_%s_%s/%s.txt' % (det_name, cat, split, seq))
-			mkdir_if_missing(save_file[cat]); save_file[cat] = open(save_file[cat], 'w')
+			mkdir_if_missing(save_file[cat])
+			save_file[cat] = open(save_file[cat], 'w')
 
 		# for each frame of a sequence, find the synthesized frame ID in the nuKITTI object data
 		trk_corr_file = os.path.join(trk_corr_dir, seq+'.txt')

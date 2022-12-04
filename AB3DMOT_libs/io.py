@@ -18,7 +18,7 @@ def load_detection(file):
 	if dets.shape[1] == 0:		# if no detection in a sequence
 		return [], False
 
-	filtered_dets = np.array([det for det in dets if det[6] > 0.3])		# TODO: set as parameter
+	filtered_dets = np.array([det for det in dets if det[6] > 0.25])		# TODO: set as parameter
 	
 	if len(filtered_dets.shape) == 1:
 		filtered_dets = np.expand_dims(filtered_dets, axis=0) 	
