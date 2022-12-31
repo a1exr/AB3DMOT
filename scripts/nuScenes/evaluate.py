@@ -83,6 +83,7 @@ class TrackingEval:
                                                 verbose=verbose)
         gt_boxes = load_gt(nusc, self.eval_set, TrackingBox, verbose=verbose)
 
+        # comment when running optuna per category
         assert set(pred_boxes.sample_tokens) == set(gt_boxes.sample_tokens), \
             "Samples in split don't match samples in predicted tracks."
 
@@ -221,7 +222,44 @@ class TrackingEval:
         if render_curves:
             self.render(metric_data_list)
 
-        return metrics_summary
+        return metrics
+
+# def eval_api(args, job_num):
+def eval_api(args):
+    # defaults:
+    args.dataroot='./data/nuScenes/data'
+    args.config_path=''
+    args.render_curves=1
+    args.verbose=1
+    args.render_classes=''
+
+    # result_path = os.path.join(args.result_path, f'track_results_nusc_{job_num}.json')
+    result_path = os.path.join(args.result_path, f'track_results_nusc.json')
+    output_dir = os.path.join(args.result_path, 'eval_track')
+    result_path_ = os.path.expanduser(result_path)
+    output_dir_ = os.path.expanduser(output_dir)
+    # output_dir_ = fileparts(args.result_path)[0]
+    eval_set_ = args.eval_set
+    dataroot_ = args.dataroot
+    version_ = args.version
+    config_path = args.config_path
+    render_curves_ = bool(args.render_curves)
+    verbose_ = bool(args.verbose)
+    render_classes_ = args.render_classes
+
+    if config_path == '':
+        cfg_ = config_factory('tracking_nips_2019')
+    else:
+        with open(config_path, 'r') as _f:
+            cfg_ = TrackingConfig.deserialize(json.load(_f))
+
+    nusc_eval = TrackingEval(config=cfg_, result_path=result_path_, eval_set=eval_set_, output_dir=output_dir_,
+                             nusc_version=version_, nusc_dataroot=dataroot_, verbose=verbose_,
+                             render_classes=render_classes_)
+    metrics = nusc_eval.main(render_curves=render_curves_)
+
+    return metrics
+
 
 if __name__ == "__main__":
 

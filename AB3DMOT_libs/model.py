@@ -44,71 +44,78 @@ class AB3DMOT(object):
 	def get_param(self, cfg, cat):
 		# get parameters for each dataset
 
-		if cfg.dataset == 'KITTI':
-			if cfg.det_name == 'pvrcnn':				# tuned for PV-RCNN detections
-				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
-				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
-				elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+		if 'optuna' in cfg and cfg['optuna'] is True:
+			algm = cfg['model_configs']['algm']
+			metric = cfg['model_configs']['metric']
+			thres = cfg['model_configs']['thres']
+			min_hits = cfg['model_configs']['min_hits']
+			max_age = cfg['model_configs']['max_age']
+		else:
+			if cfg.dataset == 'KITTI':
+				if cfg.det_name == 'pvrcnn':				# tuned for PV-RCNN detections
+					if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
+					elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
+					elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+					else: assert False, 'error'
+				elif cfg.det_name == 'pointrcnn':			# tuned for PointRCNN detections
+					if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
+					elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
+					elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+					else: assert False, 'error'
+				elif cfg.det_name == 'deprecated':			
+					if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+					elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 1, 3, 2		
+					elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+					else: assert False, 'error'
 				else: assert False, 'error'
-			elif cfg.det_name == 'pointrcnn':			# tuned for PointRCNN detections
-				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.2, 3, 2
-				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 4 		
-				elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 2, 3, 4
+			elif cfg.dataset == 'nuScenes':
+				if cfg.det_name == 'centerpoint':		# tuned for CenterPoint detections
+					if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
+					elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.5, 1, 2
+					elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
+					elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.3, 3, 2
+					elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
+					elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.7, 3, 2
+					elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'greedy', 'dist_3d',    6, 3, 2
+					else: assert False, 'error'
+				elif cfg.det_name == 'megvii':			# tuned for Megvii detections
+					if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.5, 1, 2
+					elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'dist_3d',    2, 1, 2
+					elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.2, 1, 2
+					elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.2, 3, 2
+					elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.2, 1, 2
+					elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.8, 3, 2
+					elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.6, 3, 2
+					else: assert False, 'error'
+				elif cfg.det_name == 'deprecated':		
+					if cat == 'Car': 			metric, thres, min_hits, max_age = 'dist', 10, 3, 2
+					elif cat == 'Pedestrian': 	metric, thres, min_hits, max_age = 'dist',  6, 3, 2	
+					elif cat == 'Bicycle': 		metric, thres, min_hits, max_age = 'dist',  6, 3, 2
+					elif cat == 'Motorcycle':	metric, thres, min_hits, max_age = 'dist', 10, 3, 2
+					elif cat == 'Bus': 			metric, thres, min_hits, max_age = 'dist', 10, 3, 2
+					elif cat == 'Trailer': 		metric, thres, min_hits, max_age = 'dist', 10, 3, 2
+					elif cat == 'Truck': 		metric, thres, min_hits, max_age = 'dist', 10, 3, 2
+					else: assert False, 'error'
+				# elif cfg.det_name == 'BEVFormer' or cfg.det_name == 'BEVStereo':
+				# 	if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				# 	elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				# 	elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				# 	elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				# 	elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				# 	elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				# 	elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
+				# 	else: assert False, 'error'
+				elif cfg.det_name == 'BEVFormer':
+					if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_2d', -0.534, 1, 3
+					elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.663, 1, 3
+					elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.462, 1, 3
+					elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.3, 3, 5
+					elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.417, 1, 3
+					elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.87, 1, 4
+					elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_2d', -0.861, 1, 3
+					else: assert False, 'error'
 				else: assert False, 'error'
-			elif cfg.det_name == 'deprecated':			
-				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 1, 3, 2		
-				elif cat == 'Cyclist': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-				else: assert False, 'error'
-			else: assert False, 'error'
-		elif cfg.dataset == 'nuScenes':
-			if cfg.det_name == 'centerpoint':		# tuned for CenterPoint detections
-				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
-				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.5, 1, 2
-				elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
-				elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.3, 3, 2
-				elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
-				elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.7, 3, 2
-				elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'greedy', 'dist_3d',    6, 3, 2
-				else: assert False, 'error'
-			elif cfg.det_name == 'megvii':			# tuned for Megvii detections
-				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.5, 1, 2
-				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'greedy', 'dist_3d',    2, 1, 2
-				elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.2, 1, 2
-				elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.2, 3, 2
-				elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.2, 1, 2
-				elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.8, 3, 2
-				elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.6, 3, 2
-				else: assert False, 'error'
-			elif cfg.det_name == 'deprecated':		
-				if cat == 'Car': 			metric, thres, min_hits, max_age = 'dist', 10, 3, 2
-				elif cat == 'Pedestrian': 	metric, thres, min_hits, max_age = 'dist',  6, 3, 2	
-				elif cat == 'Bicycle': 		metric, thres, min_hits, max_age = 'dist',  6, 3, 2
-				elif cat == 'Motorcycle':	metric, thres, min_hits, max_age = 'dist', 10, 3, 2
-				elif cat == 'Bus': 			metric, thres, min_hits, max_age = 'dist', 10, 3, 2
-				elif cat == 'Trailer': 		metric, thres, min_hits, max_age = 'dist', 10, 3, 2
-				elif cat == 'Truck': 		metric, thres, min_hits, max_age = 'dist', 10, 3, 2
-				else: assert False, 'error'
-			# elif cfg.det_name == 'BEVFormer' or cfg.det_name == 'BEVStereo':
-			# 	if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-			# 	elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-			# 	elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-			# 	elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-			# 	elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-			# 	elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-			# 	elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
-			# 	else: assert False, 'error'
-			elif cfg.det_name == 'BEVFormer':
-				if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.7, 1, 2
-				elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'giou_2d', -0.5, 1, 2
-				elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.4, 1, 2
-				elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.3, 1, 2
-				elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'greedy', 'iou_2d', -0.4, 2, 3
-				elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'greedy', 'iou_2d', -0.5, 2, 3
-				elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'greedy', 'iou_2d', -0.7, 1, 2
-				else: assert False, 'error'
-			else: assert False, 'error'
-		else: assert False, 'no such dataset'
+			else: assert False, 'no such dataset'
 
 		# add negative due to it is the cost
 		if metric in ['dist_3d', 'dist_2d', 'm_dis']: thres *= -1	
