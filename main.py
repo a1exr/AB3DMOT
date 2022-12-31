@@ -19,6 +19,10 @@ def parse_args():
 	args = parser.parse_args()
 	return args
 	
+# def main_per_cat(cfg, cat, log, ID_start, job_num):
+
+# 	# get data-cat-split specific path
+# 	result_sha = '%s_%s_%s_%d' % (cfg.det_name,  cat, cfg.split, job_num)
 def main_per_cat(cfg, cat, log, ID_start):
 
 	# get data-cat-split specific path

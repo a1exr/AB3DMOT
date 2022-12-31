@@ -633,8 +633,9 @@ class KittiConverter:
         with open(submission_path, 'w') as f:
             json.dump(submission, f, indent=2)
 
+    # def kitti_trk_result2nuscenes(self, job_num):
     def kitti_trk_result2nuscenes(self):
-        # conver thr KITTI tracks to nuscenes tracks
+        # conver the KITTI tracks to nuscenes tracks
 
         # Dummy meta data, please adjust accordingly.
         meta = {
@@ -648,9 +649,11 @@ class KittiConverter:
         # Init.
         results = {}
 
+        # result_name = f'{self.result_name}_{job_num}_H1'
+        result_name = f'{self.result_name}_H1'
         # path
         tmp_root_dir = os.path.join(self.nusc_kitti_root, 'tracking', self.split)
-        results_dir = os.path.join(self.result_root, self.results_title, self.result_name, 'data_0')
+        results_dir = os.path.join(self.result_root, self.results_title, result_name, 'data_0')
         corres_dir = os.path.join(tmp_root_dir, '../produced/correspondence', self.split)
         calib_dir = os.path.join(tmp_root_dir, 'calib')
 
@@ -703,16 +706,23 @@ class KittiConverter:
             'meta': meta,
             'results': results
         }
-        submission_path = os.path.join(self.result_root, self.results_title, self.result_name, 'results_%s.json' % (self.split))
+        # result_name = f'{self.result_name}_{job_num}_H1'
+        submission_path = os.path.join(self.result_root, self.results_title, result_name, 'results_%s.json' % (self.split))
         mkdir_if_missing(submission_path)
         print('Writing submission to: %s' % submission_path)
         with open(submission_path, 'w') as f:
             json.dump(submission, f, indent=2)
 
-        track_path = os.path.join(self.track_result_root, self.results_title)
-        os.makedirs(track_path, exist_ok=True)
-        track_path = os.path.join(track_path, 'track_results_nusc.json')
+        output_path = os.path.join(self.track_result_root, self.results_title)
+        os.makedirs(output_path, exist_ok=True)
+        # track_path = os.path.join(output_path, f'track_results_nusc_{job_num}.json')
+        track_path = os.path.join(output_path, 'track_results_nusc.json')
         copyfile(submission_path, track_path)
+
+        det_path = os.path.join(output_path, 'detect_results_nusc.json')
+        if not os.path.isfile(det_path):
+            bevformer_det_path = '/home/eeproj4/Alex/mmdetection3d/BEVFormer/data/nuscenes/trainval/produced/results/detection/BEVFormer/results_val.json'  # TODO
+            copyfile(bevformer_det_path, det_path)
 
 if __name__ == '__main__':
     fire.Fire(KittiConverter)

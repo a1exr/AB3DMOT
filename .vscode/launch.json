@@ -15,16 +15,17 @@
             // "args": ["nuscenes_gt2kitti_trk","--split", "val"]   // Dataset Preparation @ export_kitti.py
             // "args": ["nuscenes_obj_result2kitti", "--result_name","BEVFormer","--split","val"]  // 3D Object Detection @ export_kitti.py
             // "args": ["--dataset","nuScenes","--det_name","BEVFormer","--split","val"]  // 3D Object Detection @ scripts/pre_processing/convert_det2input.py
-            // "args": ["--dataset","nuScenes","--det_name","BEVFormer","--results_title","try_model_params_v5_val","--split","val"]  // 3D Multi-Object Tracking @ main.py
-            // "args": ["kitti_trk_result2nuscenes","--results_title","try_model_params_v5_val","--result_name","BEVFormer_val_H1","--split","val"]  // 3D MOT Evaluation @ export_kitti.py
+            // "args": ["--dataset","nuScenes","--det_name","BEVFormer","--results_title","try_optuna_best_model_params_val","--split","val"]  // 3D Multi-Object Tracking @ main.py
+            // "args": ["kitti_trk_result2nuscenes","--results_title","try_optuna_best_model_params_val","--result_name","BEVFormer_val","--split","val"]  // 3D MOT Evaluation @ export_kitti.py
             // 3D MOT Evaluation @ evaluate.py
-            "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/try_model_params_v5_val/track_results_nusc.json","--eval_set","val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/try_model_params_v5_val/eval_track"]
+            "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/try_optuna_best_model_params_val/track_results_nusc.json","--eval_set","val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/try_optuna_best_model_params_val/eval_track"]
 
             // "args": ["nuscenes_obj_result2kitti", "--result_name","BEVFormer","--split","custom_val"]  // 3D Object Detection @ export_kitti.py
-            // "args": ["--dataset","nuScenes","--det_name","BEVFormer","--results_title","try_model_params_v5","--split","custom_val"]  // 3D Multi-Object Tracking @ main.py
-            // "args": ["kitti_trk_result2nuscenes","--results_title","try_model_params_v5","--result_name","BEVFormer_custom_val_H1","--split","custom_val"]  // 3D MOT Evaluation @ export_kitti.py
-            // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/try_model_params_v5/track_results_nusc.json","--eval_set","custom_val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/try_model_params_v5/eval_track"]
+            // "args": ["--dataset","nuScenes","--det_name","BEVFormer","--results_title","try_car_cat","--split","custom_val"]  // 3D Multi-Object Tracking @ main.py
+            // "args": ["kitti_trk_result2nuscenes","--results_title","try_car_cat","--result_name","BEVFormer_Car_custom_val_H1","--split","custom_val"]  // 3D MOT Evaluation @ export_kitti.py
+            // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/try_car_cat/track_results_nusc.json","--eval_set","custom_val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/try_car_cat/eval_track"]
 
+            // BEVStereo
             // "args": ["nuscenes_obj_result2kitti", "--result_name","BEVStereo","--split","val"]  // 3D Object Detection @ export_kitti.py
             // "args": ["--dataset","nuScenes","--det_name","BEVStereo","--split","val"]  // 3D Object Detection @ scripts/pre_processing/convert_det2input.py
             // "args": ["--dataset","nuScenes","--det_name","BEVStereo","--results_title","BEVStereo_custom_val_mean_dist_conf^-1_R","--split","custom_val"]  // 3D Multi-Object Tracking @ main.py
@@ -32,6 +33,8 @@
             // 3D MOT Evaluation @ evaluate.py
             // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVStereo_custom_val_mean_dist_conf^-1_R/track_results_nusc.json","--eval_set","custom_val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVStereo_custom_val_mean_dist_conf^-1_R/eval_track"]
 
+            // optuna:
+            // "args": ["--dataset","nuScenes","--det_name","BEVFormer","--results_title","optuna_truck_val_100","--split","val","--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/optuna_truck_val_100"]
         }
     ]
 }
