@@ -29,7 +29,7 @@ global num_trials, analytics_fps_data, enricher_fps_data, n_trials, recall_data,
 
 PORT = 4001
 num_trials = 0
-n_trials = 100    #5000
+n_trials = 50    #5000
 # n_jobs = 4
 analytics_fps_data = list()
 enricher_fps_data = list()
@@ -80,16 +80,33 @@ def objective(trial, args, cfg, kitti_export):
     for idx, data in enumerate(settings_show):
         print_log(data, log, display=False)
 
-    model_configs = {
-        'algm': trial.suggest_categorical("algm", ['greedy', 'hungar']),
-        # 'metric': trial.suggest_categorical("metric", ['dist', 'm_dis', 'dist_2d', 'dist_3d', 'iou_2d', 'iou_3d', 'giou_2d', 'giou_3d']),
-        # 'thres': trial.suggest_float("thres", -1.0, 10.0),
-        'metric': trial.suggest_categorical("metric", ['iou_2d', 'iou_3d', 'giou_2d', 'giou_3d']),
-        'thres': trial.suggest_float("thres", -1.0, 0.0),
-        'min_hits': trial.suggest_int("min_hits", 1, 4),
-        'max_age': trial.suggest_int("max_age", 2, 5)
+    kf_configs = {
+        'Rx': trial.suggest_float("Rx", 0.0, 1.0),
+        'Rz': trial.suggest_float("Rz", 0.5, 2.0),
+        'Rtheta': trial.suggest_float("Rtheta", 0.0, 0.33),
+        'Rl': trial.suggest_float("Rl", 0.05, 2.0),
+        'Rw': trial.suggest_float("Rw", 0.0, 0.25),
+
+        'Px': trial.suggest_int("Px", 2, 15),
+        'Pz': trial.suggest_int("Pz", 5, 20),
+        'Ptheta': trial.suggest_float("Ptheta", 0.05, 0.5),
+        'Pl': trial.suggest_float("Pl", 0.0, 3.5),
+        'Pw': trial.suggest_float("Pw", 0.0, 2.0),
+        'Pdx': trial.suggest_float("Pdx", 1.5, 4.0),
+        'Pdz': trial.suggest_float("Pdz", 2.0, 6.0),
+        'Pdtheta': trial.suggest_float("Pdtheta", 0.0, 0.2),
+        'Pdl': trial.suggest_float("Pdl", 0.1, 3.0),
+        'Pdw': trial.suggest_float("Pdw", 0.1, 1.5),
+
+        'Qdx': trial.suggest_float("Qdx", 0.1, 0.5),
+        'Qdz': trial.suggest_float("Qdz", 0.1, 0.5),
+        'Qdtheta': trial.suggest_float("Qdtheta", 0.0, 0.2),
+        'Qdl': trial.suggest_float("Qdl", 0.1, 0.5),
+        'Qdw': trial.suggest_float("Qdw", 0.1, 0.5),
+     
+        'update_R_method': trial.suggest_categorical("update_R_method", ['dist', 'confidence', 'mean']),
     }
-    cfg['model_configs'] = model_configs
+    cfg['kf_configs'] = kf_configs
 
     # global ID counter used for all categories, not start from 1 for each category to prevent different 
     # categories of objects have the same ID. This allows visualization of all object categories together
@@ -149,7 +166,8 @@ if __name__ == "__main__":
     # load config files
     config_path = './configs/%s.yml' % args.dataset
     cfg, settings_show = Config(config_path)
-    cfg['optuna'] = True
+    cfg['optuna_params'] = False
+    cfg['optuna_kf'] = True
 
     # overwrite split and detection method
     if args.split != '': cfg.split = args.split

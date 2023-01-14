@@ -37,6 +37,8 @@ class AB3DMOT(object):
 		self.get_param(cfg, cat)
 		self.print_param()
 
+		self.kf_coeffs = cfg['kf_configs'] if 'optuna_kf' in cfg and cfg['optuna_kf'] is True else None
+
 		# debug
 		# self.debug_id = 2
 		self.debug_id = None
@@ -44,7 +46,7 @@ class AB3DMOT(object):
 	def get_param(self, cfg, cat):
 		# get parameters for each dataset
 
-		if 'optuna' in cfg and cfg['optuna'] is True:
+		if 'optuna_params' in cfg and cfg['optuna_params'] is True:
 			algm = cfg['model_configs']['algm']
 			metric = cfg['model_configs']['metric']
 			thres = cfg['model_configs']['thres']
@@ -287,7 +289,16 @@ class AB3DMOT(object):
 				confidence = trk.info[6] if trk.info[6] > 0 else 1.0e-5
 				mean_score = (confidence + dist_score) / 2.0
 
-				trk.kf.cur_R = trk.kf.R / mean_score
+				if self.kf_coeffs is None:
+					trk.kf.cur_R = trk.kf.R / mean_score
+				else:
+					if self.kf_coeffs['update_R_method'] == 'dist':
+						trk.kf.cur_R = trk.kf.R / dist_score
+					elif self.kf_coeffs['update_R_method'] == 'confidence':
+						trk.kf.cur_R = trk.kf.R / confidence
+					else:
+						trk.kf.cur_R = trk.kf.R / mean_score
+
 				# kalman filter update with observation
 				trk.kf.update(z=bbox2d, R=trk.kf.cur_R)
 				# trk.kf.update(z=bbox2d)
@@ -311,7 +322,7 @@ class AB3DMOT(object):
 		# dets = copy.copy(dets)
 		new_id_list = list()					# new ID generated for unmatched detections
 		for i in unmatched_dets:        			# a scalar of index
-			trk = KF(Box3D.bbox2array(dets[i]), info[i, :], self.ID_count[0], self.cat)
+			trk = KF(Box3D.bbox2array(dets[i]), info[i, :], self.ID_count[0], self.cat, self.kf_coeffs)
 			self.trackers.append(trk)
 			new_id_list.append(trk.id)
 			# print('track ID %s has been initialized due to new detection' % trk.id)
