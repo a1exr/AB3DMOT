@@ -650,7 +650,7 @@ class KittiConverter:
         results = {}
 
         # result_name = f'{self.result_name}_{job_num}_H1'
-        result_name = f'{self.result_name}_H1'
+        result_name = f'{self.result_name}'
         # path
         tmp_root_dir = os.path.join(self.nusc_kitti_root, 'tracking', self.split)
         results_dir = os.path.join(self.result_root, self.results_title, result_name, 'data_0')
