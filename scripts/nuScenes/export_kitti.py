@@ -719,10 +719,10 @@ class KittiConverter:
         track_path = os.path.join(output_path, 'track_results_nusc.json')
         copyfile(submission_path, track_path)
 
-        det_path = os.path.join(output_path, 'detect_results_nusc.json')
-        if not os.path.isfile(det_path):
-            bevformer_det_path = '/home/eeproj4/Alex/mmdetection3d/BEVFormer/data/nuscenes/trainval/produced/results/detection/BEVFormer/results_val.json'  # TODO
-            copyfile(bevformer_det_path, det_path)
+        # det_path = os.path.join(output_path, 'detect_results_nusc.json')
+        # if not os.path.isfile(det_path):
+        #     bevformer_det_path = '/home/eeproj4/Alex/mmdetection3d/BEVFormer/data/nuscenes/trainval/produced/results/detection/BEVFormer/results_val.json'  # TODO
+        #     copyfile(bevformer_det_path, det_path)
 
 if __name__ == '__main__':
     fire.Fire(KittiConverter)

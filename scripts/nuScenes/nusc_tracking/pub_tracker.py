@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-from nuScenes.nusc_tracking.track_utils import greedy_assignment
+from scripts.nuScenes.nusc_tracking.track_utils import greedy_assignment
 import copy 
 import importlib
 import sys 
@@ -49,20 +49,26 @@ class PubTracker(object):
   def step_centertrack(self, results, time_lag):
     if len(results) == 0:
       self.tracks = []
+    #   return []
+    # else:
+    temp = []
+    for det in results:
+      # filter out classes not evaluated for tracking 
+      if det['detection_name'] not in NUSCENES_TRACKING_NAMES:
+        continue 
+
+      if det['detection_score'] < 0.005:  # TODO: optimize this value
+        continue 
+
+      det['ct'] = np.array(det['translation'][:2])
+      det['tracking'] = np.array(det['velocity'][:2]) * -1 * time_lag
+      det['label_preds'] = NUSCENES_TRACKING_NAMES.index(det['detection_name'])
+      temp.append(det)
+
+    results = temp
+    if len(results) == 0:
+      self.tracks = []
       return []
-    else:
-      temp = []
-      for det in results:
-        # filter out classes not evaluated for tracking 
-        if det['detection_name'] not in NUSCENES_TRACKING_NAMES:
-          continue 
-
-        det['ct'] = np.array(det['translation'][:2])
-        det['tracking'] = np.array(det['velocity'][:2]) * -1 * time_lag
-        det['label_preds'] = NUSCENES_TRACKING_NAMES.index(det['detection_name'])
-        temp.append(det)
-
-      results = temp
 
     N = len(results)
     M = len(self.tracks)

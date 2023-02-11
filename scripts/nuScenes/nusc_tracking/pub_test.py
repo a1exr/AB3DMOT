@@ -13,11 +13,11 @@ import copy
 import json
 import os
 import numpy as np
-from nuScenes.nusc_tracking.pub_tracker import PubTracker as Tracker
+from scripts.nuScenes.nusc_tracking.pub_tracker import PubTracker as Tracker
 from nuscenes import NuScenes
 import json 
 import time
-from nuscenes.utils import splits
+from AB3DMOT_libs.nuScenes_split import get_split
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Tracking Evaluation")
@@ -39,9 +39,9 @@ def save_first_frame():
     args = parse_args()
     nusc = NuScenes(version=args.version, dataroot=args.root, verbose=True)
     if args.version == 'v1.0-trainval':
-        scenes = splits.val
+        scenes = get_split()[1]     # val
     elif args.version == 'v1.0-test':
-        scenes = splits.test 
+        scenes = get_split()[2]     # test
     else:
         raise ValueError("unknown")
 
