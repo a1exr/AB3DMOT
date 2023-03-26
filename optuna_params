@@ -29,7 +29,7 @@ global num_trials, analytics_fps_data, enricher_fps_data, n_trials, recall_data,
 
 PORT = 4001
 num_trials = 0
-n_trials = 100    #5000
+n_trials = 80    #5000
 # n_jobs = 4
 analytics_fps_data = list()
 enricher_fps_data = list()

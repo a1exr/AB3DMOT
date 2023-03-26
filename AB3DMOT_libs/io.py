@@ -18,7 +18,9 @@ def load_detection(file):
 	if dets.shape[1] == 0:		# if no detection in a sequence
 		return [], False
 
-	filtered_dets = np.array([det for det in dets if det[6] > 0.25])		# TODO: set as parameter
+	# Detection thresholding
+	# filtered_dets = np.array([det for det in dets if det[6] > 0.25])		# TODO: set as parameter
+	filtered_dets = np.array([det for det in dets if det[6] > 0.005])		# TODO: set as parameter
 	
 	if len(filtered_dets.shape) == 1:
 		filtered_dets = np.expand_dims(filtered_dets, axis=0) 	
@@ -102,13 +104,13 @@ def save_results(res, P_sigmas, R_sigmas, save_trk_file, eval_file, graphs_info_
 		eval_file.write(str_to_write)
 
 	# save for graphic visualizations
-	if conf_tmp >= 0.4:	# TODO: set as config
+	# if conf_tmp >= 0.4:	# TODO: set as config
 		# print(f'{frame} {id_tmp} {type_tmp}')
-		str_to_write = '%d %d %s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, type_tmp, conf_tmp,
-		bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[5], bbox3d_tmp[6],
-		P_sigmas[0], P_sigmas[1], P_sigmas[2], P_sigmas[3], P_sigmas[4],
-		R_sigmas[0], R_sigmas[1], R_sigmas[2], R_sigmas[3], R_sigmas[4])
-		graphs_info_file.write(str_to_write)
+	str_to_write = '%d %d %s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n' % (frame, id_tmp, type_tmp, conf_tmp,
+	bbox3d_tmp[1], bbox3d_tmp[2], bbox3d_tmp[3], bbox3d_tmp[5], bbox3d_tmp[6],
+	P_sigmas[0], P_sigmas[1], P_sigmas[2], P_sigmas[3], P_sigmas[4],
+	R_sigmas[0], R_sigmas[1], R_sigmas[2], R_sigmas[3], R_sigmas[4])
+	graphs_info_file.write(str_to_write)
 
 def save_affinity(affi_data, save_path):
 	######### save txt files for faster check, with aligned formatting

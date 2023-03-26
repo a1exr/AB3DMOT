@@ -107,10 +107,19 @@ class AB3DMOT(object):
 				# 	elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
 				# 	elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'hungar', 'dist_3d', 6, 3, 2
 				# 	else: assert False, 'error'
+				# elif cfg.det_name == 'BEVFormer' or cfg.det_name == 'BEVFusion':
+				# 	if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_2d', -0.534, 1, 3
+				# 	elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.663, 1, 3
+				# 	elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.462, 1, 3
+					# elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.3, 3, 5
+					# elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.417, 1, 3
+					# elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.87, 1, 4
+					# elif cat == 'Bicycle': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_2d', -0.861, 1, 3
+				# 	else: assert False, 'error'
 				elif cfg.det_name == 'BEVFormer' or cfg.det_name == 'BEVFusion':
-					if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_2d', -0.534, 1, 3
-					elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.663, 1, 3
-					elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.462, 1, 3
+					if cat == 'Car': 			algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.467, 1, 2
+					elif cat == 'Pedestrian': 	algm, metric, thres, min_hits, max_age = 'hungar', 'giou_2d', -0.848, 1, 2
+					elif cat == 'Truck': 		algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.312, 1, 2
 					elif cat == 'Trailer': 		algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.3, 3, 5
 					elif cat == 'Bus': 			algm, metric, thres, min_hits, max_age = 'hungar', 'giou_3d', -0.417, 1, 3
 					elif cat == 'Motorcycle':	algm, metric, thres, min_hits, max_age = 'greedy', 'giou_3d', -0.87, 1, 4

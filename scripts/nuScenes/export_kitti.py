@@ -82,11 +82,20 @@ class KittiConverter:
         self.nusc_kitti_root = nusc_kitti_root; mkdir_if_missing(self.nusc_kitti_root)
         self.cam_name = cam_name
         self.lidar_name = lidar_name
-        self.split = split
-        if split in ['train', 'val', 'trainval', 'custom_val']: self.nusc_version = 'v1.0-trainval'
-        elif split in ['mini', 'mini_val']:                     self.nusc_version = 'v1.0-mini'
-        elif split == 'test':                                   self.nusc_version = 'v1.0-test'
-        if split == 'custom_val':   self.split = 'val'
+        if split in ['train', 'mini_train', 'val', 'trainval', 'custom_val']:
+            self.nusc_version = 'v1.0-trainval'
+            # if split == 'custom_val':
+            #     self.split = 'val'
+            # elif split == 'mini_train':
+            #     self.split = 'train'
+        elif split in ['mini', 'mini_val']:
+            self.nusc_version = 'v1.0-mini'
+        elif split == 'test':
+            self.nusc_version = 'v1.0-test'
+
+        self.split = split if split=='test' else ''
+        if 'train' in split: self.split = 'train' + self.split
+        if 'val' in split: self.split = self.split + 'val'
         self.track_result_root = track_result_root
         self.results_title = results_title
         self.result_name = result_name
@@ -650,6 +659,7 @@ class KittiConverter:
         results = {}
 
         # result_name = f'{self.result_name}_{job_num}_H1'
+        # result_name = f'{self.result_name}_H1'
         result_name = f'{self.result_name}'
         # path
         tmp_root_dir = os.path.join(self.nusc_kitti_root, 'tracking', self.split)
@@ -723,6 +733,12 @@ class KittiConverter:
         # if not os.path.isfile(det_path):
         #     bevformer_det_path = '/home/eeproj4/Alex/mmdetection3d/BEVFormer/data/nuscenes/trainval/produced/results/detection/BEVFormer/results_val.json'  # TODO
         #     copyfile(bevformer_det_path, det_path)
+
+        det_path = os.path.join(output_path, 'detect_results_nusc.json')
+        if not os.path.isfile(det_path):
+            bevformer_det_path = '/home/eeproj4/Alex/mmdetection3d/BEVFormer/data/nuscenes/trainval/produced/results/detection/BEVFusion/results_val.json'  # TODO
+            copyfile(bevformer_det_path, det_path)
+
 
 if __name__ == '__main__':
     fire.Fire(KittiConverter)

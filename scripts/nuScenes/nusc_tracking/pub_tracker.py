@@ -32,9 +32,10 @@ NUSCENE_CLS_VELOCITY_ERROR = {
 
 
 class PubTracker(object):
-  def __init__(self,  hungarian=False, max_age=0):
+  def __init__(self,  hungarian=False, max_age=0, th=0.0):
     self.hungarian = hungarian
     self.max_age = max_age
+    self.th = th
 
     print("Use hungarian: {}".format(hungarian))
 
@@ -57,7 +58,8 @@ class PubTracker(object):
       if det['detection_name'] not in NUSCENES_TRACKING_NAMES:
         continue 
 
-      if det['detection_score'] < 0.005:  # TODO: optimize this value
+	    # Detection thresholding
+      if det['detection_score'] < self.th:
         continue 
 
       det['ct'] = np.array(det['translation'][:2])

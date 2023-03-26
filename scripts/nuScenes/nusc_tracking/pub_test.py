@@ -27,21 +27,28 @@ def parse_args():
     )
     parser.add_argument("--hungarian", action='store_true')
     parser.add_argument("--root", type=str, default="data/nuScenes")
-    parser.add_argument("--version", type=str, default='v1.0-trainval')
+    parser.add_argument("--version", type=str, default='val')
     parser.add_argument("--max_age", type=int, default=3)
+    parser.add_argument("--TH", type=float, default=0.0)      # TODO: optimize this value
 
     args = parser.parse_args()
 
     return args
 
 
-def save_first_frame():
-    args = parse_args()
-    nusc = NuScenes(version=args.version, dataroot=args.root, verbose=True)
-    if args.version == 'v1.0-trainval':
+def save_first_frame(args):
+    # args = parse_args()
+    nusc_version = "v1.0-trainval"
+    if args.version=='mini_val': nusc_version = "v1.0-mini"
+    elif args.version=='test': nusc_version = "v1.0-test"
+
+    nusc = NuScenes(version=nusc_version, dataroot=args.root, verbose=True)
+    if args.version == 'val':
         scenes = get_split()[1]     # val
-    elif args.version == 'v1.0-test':
+    elif args.version == 'test':
         scenes = get_split()[2]     # test
+    elif args.version == 'custom_val':
+        scenes = get_split()[5]     # custom_val
     else:
         raise ValueError("unknown")
 
@@ -74,11 +81,11 @@ def save_first_frame():
         json.dump({'frames': frames}, f)
 
 
-def main():
-    args = parse_args()
+def main(args):
+    # args = parse_args()
     print('Deploy OK')
 
-    tracker = Tracker(max_age=args.max_age, hungarian=args.hungarian)
+    tracker = Tracker(max_age=args.max_age, hungarian=args.hungarian, th=args.TH)
 
     with open(args.checkpoint, 'rb') as f:
         predictions=json.load(f)['results']
@@ -144,19 +151,23 @@ def main():
         "use_external": False,
     }
 
-    res_dir = os.path.join(args.work_dir)
-    if not os.path.exists(res_dir):
-        os.makedirs(res_dir)
+    # res_dir = os.path.join(args.work_dir)
+    # if not os.path.exists(res_dir):
+    #     os.makedirs(res_dir)
 
-    with open(os.path.join(args.work_dir, 'tracking_result.json'), "w") as f:
+    with open(os.path.join(args.work_dir, f'tracking_result_TH={args.TH:.4f}.json'), "w") as f:
         json.dump(nusc_annos, f)
     return speed
 
-def eval_tracking():
-    args = parse_args()
-    eval(os.path.join(args.work_dir, 'tracking_result.json'),
-        "val",
-        args.work_dir,
+def eval_tracking(args):
+    # args = parse_args()
+    centerpoint_res_dir = os.path.join(args.work_dir, f'centerpoint_eval_track_TH={args.TH:.4f}')
+    if not os.path.exists(centerpoint_res_dir):
+        os.makedirs(centerpoint_res_dir)
+
+    eval(os.path.join(args.work_dir, f'tracking_result_TH={args.TH:.4f}.json'),
+        args.version,
+        centerpoint_res_dir,
         args.root
     )
 
@@ -164,7 +175,10 @@ def eval(res_path, eval_set="val", output_dir=None, root_path=None):
     from nuscenes.eval.tracking.evaluate import TrackingEval 
     from nuscenes.eval.common.config import config_factory as track_configs
 
-    
+    nusc_version = "v1.0-trainval"
+    if eval_set=='mini_val': nusc_version = "v1.0-mini"
+    elif eval_set=='test': nusc_version = "v1.0-test"
+
     cfg = track_configs("tracking_nips_2019")
     nusc_eval = TrackingEval(
         config=cfg,
@@ -172,7 +186,7 @@ def eval(res_path, eval_set="val", output_dir=None, root_path=None):
         eval_set=eval_set,
         output_dir=output_dir,
         verbose=True,
-        nusc_version="v1.0-trainval",
+        nusc_version=nusc_version,
         nusc_dataroot=root_path,
     )
     metrics_summary = nusc_eval.main()
@@ -186,7 +200,8 @@ def test_time():
     print("Speed is {} FPS".format( max(speeds)  ))
 
 if __name__ == '__main__':
-    save_first_frame()
-    main()
+    args = parse_args()
+    save_first_frame(args)
+    main(args)
     # test_time()
-    eval_tracking()
+    eval_tracking(args)

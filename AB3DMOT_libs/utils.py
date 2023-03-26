@@ -80,6 +80,13 @@ def get_threshold(dataset, det_name):
 		if det_name == 'centerpoint': 
 			return {'Car': 0.269231, 'Pedestrian': 0.410000, 'Truck': 0.300000, 'Trailer': 0.372632, 
 					'Bus': 0.430000, 'Motorcycle': 0.368667, 'Bicycle': 0.394146}
+		if det_name == 'BEVFusion': 
+			# return {'Car': 0.269231, 'Pedestrian': 0.410000, 'Truck': 0.300000, 'Trailer': 0.372632, 
+			# 		'Bus': 0.430000, 'Motorcycle': 0.368667, 'Bicycle': 0.394146}
+			# return {'Car': 0.025, 'Pedestrian': 0.1, 'Truck': 0.025, 'Trailer': 0.1, 
+			# 		'Bus': 0.05, 'Motorcycle': 0.1, 'Bicycle': 0.025}	# custom_TH_1
+			return {'Car': 0.005, 'Pedestrian': 0.005, 'Truck': 0.005, 'Trailer': 0.005, 
+					'Bus': 0.005, 'Motorcycle': 0.005, 'Bicycle': 0.005}	# TH_0_005
 		else: assert False, 'error, detection method not supported for getting threshold' % det_name
 	else: assert False, 'error, dataset %s not supported for getting threshold' % dataset
 

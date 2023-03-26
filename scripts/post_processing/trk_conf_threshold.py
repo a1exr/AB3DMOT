@@ -10,12 +10,14 @@ from xinshuo_io import load_txt_file, load_list_from_folder, mkdir_if_missing, f
 def parse_args():
     parser = argparse.ArgumentParser(description='AB3DMOT')
     parser.add_argument('--result_sha', type=str, default='pointrcnn_Car_test_thres', help='name of the result folder')
+    parser.add_argument('--split', type=str, default='val', help='train, val, test, mini_train, mini_val, custom_val')
+    parser.add_argument('--title', type=str, default='defaultTH', help='results folder sufix')
     parser.add_argument('--dataset', type=str, default='nuScenes', help='KITTI, nuScenes')
     parser.add_argument('--num_hypo', type=int, default=1, help='number of hypothesis used')
     args = parser.parse_args()
     return args
 
-def conf_thresholding(data_dir, save_dir, score_threshold, num_hypo):
+def conf_thresholding(data_dir, save_dir, thres_dict, num_hypo):
 	
 	# loop through all hypotheses
 	for hypo_index in range(num_hypo):
@@ -97,16 +99,18 @@ if __name__ == '__main__':
 	args = parse_args()
 	result_sha = args.result_sha
 	num_hypo = args.num_hypo
+	det_name = result_sha.split('_')[0]
+	subfolder_all = f'{det_name}_{args.split}_H{num_hypo}'
 
 	# get threshold for filtering
-	det_name = result_sha.split('_')[0]
 	thres_dict = get_threshold(args.dataset, det_name)
 
 	# get directories
 	file_path = os.path.dirname(os.path.realpath(__file__))
 	root_dir = os.path.join(file_path, '../../results', args.dataset)
-	data_dir = os.path.join(root_dir, result_sha)
-	save_dir = os.path.join(root_dir, result_sha+'_thres'); mkdir_if_missing(save_dir)
+	data_dir = os.path.join(root_dir, result_sha, subfolder_all)
+	save_dir = os.path.join(root_dir, f'{result_sha}_{args.title}', subfolder_all)
+	mkdir_if_missing(save_dir)
 
 	# run thresholding
 	conf_thresholding(data_dir, save_dir, thres_dict, num_hypo)
