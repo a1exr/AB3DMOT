@@ -36,18 +36,20 @@
             // BEVFusion
             // "args": ["nuscenes_obj_result2kitti", "--result_name","BEVFusion","--split","val"]  // 3D Object Detection @ export_kitti.py
             // "args": ["--dataset","nuScenes","--det_name","BEVFusion","--split","val"]  // 3D Object Detection @ scripts/pre_processing/convert_det2input.py
-            // "args": ["--dataset","nuScenes","--det_name","BEVFusion","--results_title","BEVFusion_val_custom_model_configs2","--split","val"]  // 3D Multi-Object Tracking @ main.py
-            // "args": ["kitti_trk_result2nuscenes","--results_title","BEVFusion_val_custom_model_configs2","--result_name","BEVFusion_val_H1","--split","val"]  // 3D MOT Evaluation @ export_kitti.py
+            // "args": ["--dataset","nuScenes","--det_name","BEVFusion","--results_title","BEVFusion_val_custom_model_configs2_TH_0_005","--split","val"]  // 3D Multi-Object Tracking @ main.py
+            // "args": ["--result_sha","BEVFusion_val_custom_model_configs2_TH_0_005","--split","val","--title","non_causal_iom_0_7"]  // Tracking Thresholding @ trk_conf_threshold.py
+            // "args": ["kitti_trk_result2nuscenes","--results_title","BEVFusion_val_custom_model_configs2_TH_0_005_non_causal_iom_0_7","--result_name","BEVFusion_val_H1","--split","val"]  // 3D MOT Evaluation @ export_kitti.py
             // 3D MOT Evaluation @ evaluate.py
-            // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_val_custom_model_configs2/track_results_nusc.json","--eval_set","val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_val_custom_model_configs2/eval_track"]
+            // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_val_custom_model_configs2_TH_0_005_non_causal_iom_0_7/track_results_nusc.json","--eval_set","val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_val_custom_model_configs2_TH_0_005_non_causal_iom_0_7/eval_track"]
             // "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_val_bevformer_model_configs/tracking_result.json","--eval_set","val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_val_bevformer_model_configs/centerpoint_eval"]
 
             // "args": ["nuscenes_obj_result2kitti","--result_name","BEVFusion","--split","custom_val"]  // 3D Object Detection @ export_kitti.py
-            // "args": ["--dataset","nuScenes","--det_name","BEVFusion","--results_title","BEVFusion_custom_val_bevformer_model_configs_no_TH","--split","custom_val"]  // 3D Multi-Object Tracking @ main.py
-            // "args": ["--result_sha","BEVFusion_custom_val_bevformer_model_configs_no_TH","--split","custom_val","--title","non_causal_TH_0_005"]  // Tracking Thresholding @ trk_conf_threshold.py
-            // "args": ["kitti_trk_result2nuscenes","--results_title","BEVFusion_custom_val_bevformer_model_configs_no_TH_non_causal_TH_0_005","--result_name","BEVFusion_custom_val_H1","--split","custom_val"]  // 3D MOT Evaluation @ export_kitti.py
+            // "args": ["--dataset","nuScenes","--det_name","BEVFusion","--results_title","BEVFusion_custom_val_bevformer_model_configs_TH_0_005","--split","custom_val"]  // 3D Multi-Object Tracking @ main.py
+            // "args": ["--result_sha","BEVFusion_custom_val_bevformer_model_configs_no_TH","--split","custom_val","--title","iom2d_0_25","--per_frame"]  // Tracking Thresholding @ trk_nms.py
+            // "args": ["--result_sha","BEVFusion_custom_val_bevformer_model_configs_no_TH_iom2d_0_25","--split","custom_val","--title","nc_TH2"]  // Tracking Thresholding @ trk_conf_threshold.py
+            // "args": ["kitti_trk_result2nuscenes","--results_title","BEVFusion_custom_val_bevformer_model_configs_no_TH_iom2d_0_25_nc_TH2","--result_name","BEVFusion_custom_val_H1","--split","custom_val"]  // 3D MOT Evaluation @ export_kitti.py
             // 3D MOT Evaluation @ evaluate.py
-            "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_custom_val_bevformer_model_configs_no_TH_non_causal_TH_0_005/track_results_nusc.json","--eval_set","custom_val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_custom_val_bevformer_model_configs_no_TH_non_causal_TH_0_005/eval_track"]
+            "args": ["--result_path","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_custom_val_bevformer_model_configs_no_TH_iom2d_0_25_nc_TH2/track_results_nusc.json","--eval_set","custom_val","--version","v1.0-trainval","--output_dir","/home/eeproj4/Alex/mmdetection3d/BEVFormer/test/bevformer_base/BEVFusion_custom_val_bevformer_model_configs_no_TH_iom2d_0_25_nc_TH2/eval_track"]
 
             // "cwd": "${workspaceRoot}/Xinshuo_PyToolbox",
             // "args": ["nuscenes_gt2kitti_trk","--split", "train"]   // Dataset Preparation @ export_kitti.py

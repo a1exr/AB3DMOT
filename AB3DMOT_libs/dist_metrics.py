@@ -162,7 +162,45 @@ def iou(box_a, box_b, metric='giou_3d'):
 			C_3D = C_2D * union_height
 			return I_3D / U_3D - (C_3D - U_3D) / C_3D
 	else:
-		assert False, '%s is not supported' % space
+		assert False, '%s is not supported' % metric
+
+def iom(box_a, box_b, metric='iom_2d'):
+	''' Compute 3D/2D bounding box intersection over minimum area (denoted IoM), only working for object parallel to ground
+
+	Input:
+		Box3D instances
+	Output:
+	    iou_3d: 3D bounding box IoM
+	    iou_2d: bird's eye view 2D bounding box IoM
+
+	box corner order is like follows
+            1 -------- 0 		 top is bottom because y direction is negative
+           /|         /|
+          2 -------- 3 .
+          | |        | |
+          . 5 -------- 4
+          |/         |/
+          6 -------- 7    
+	
+	rect/ref camera coord:
+    right x, down y, front z
+	'''	
+
+	# compute 2D related measures
+	boxa_bot, boxb_bot = compute_bottom(box_a, box_b)
+	I_2D = compute_inter_2D(boxa_bot, boxb_bot)
+
+	if 'iom_2d' in metric:		 	# return 2D IoM
+		Min_2D = min(box_a.w * box_a.l, box_b.w * box_b.l)
+		return I_2D / Min_2D
+
+	elif 'iom_3d' in metric:		# return 3D IoM
+		overlap_height = compute_height(box_a, box_b)
+		I_3D = I_2D * overlap_height	
+		Min_3D = min(box_a.w * box_a.l * box_a.h, box_b.w * box_b.l * box_b.h)
+		return I_3D / Min_3D
+	else:
+		assert False, '%s is not supported' % metric
 
 def dist_ground(bbox1, bbox2):
 	# Compute distance of bottom center in 3D space, NOT considering the difference in height
