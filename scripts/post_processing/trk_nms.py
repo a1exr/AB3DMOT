@@ -74,7 +74,7 @@ def run_nms(data_dir, save_dir, num_hypo, del_per_frame):
 						# iou_3d = iou(obj_to_Box3D(obj_a), obj_to_Box3D(obj_b), metric='iou_3d')
 						# iou_2d = iou(obj_to_Box3D(obj_a), obj_to_Box3D(obj_b), metric='iou_2d')
 						iom_2d = iom(obj_to_Box3D(obj_a), obj_to_Box3D(obj_b), metric='iom_2d')
-						if iom_2d > 0.25:	# !!!!!!!! TODO: set as parameter !!!!!!!!
+						if iom_2d > 0.15:	# !!!!!!!! TODO: set as parameter !!!!!!!!
 							categories = [obj_a.type, obj_b.type]
 							if 'Pedestrian' in categories and iom_2d < 0.5:	# !!!!!!!! TODO: set as parameter !!!!!!!!
 								continue

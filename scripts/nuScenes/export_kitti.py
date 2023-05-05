@@ -82,20 +82,21 @@ class KittiConverter:
         self.nusc_kitti_root = nusc_kitti_root; mkdir_if_missing(self.nusc_kitti_root)
         self.cam_name = cam_name
         self.lidar_name = lidar_name
+        self.split = split
         if split in ['train', 'mini_train', 'val', 'trainval', 'custom_val']:
             self.nusc_version = 'v1.0-trainval'
-            # if split == 'custom_val':
-            #     self.split = 'val'
+            if split == 'custom_val':
+                self.split = 'val'
             # elif split == 'mini_train':
             #     self.split = 'train'
-        elif split in ['mini', 'mini_val']:
+        elif split in 'mini_val':
             self.nusc_version = 'v1.0-mini'
         elif split == 'test':
             self.nusc_version = 'v1.0-test'
 
-        self.split = split if split=='test' else ''
-        if 'train' in split: self.split = 'train' + self.split
-        if 'val' in split: self.split = self.split + 'val'
+        # self.split = split if split=='test' else ''
+        # if 'train' in split: self.split = 'train' + self.split
+        # if 'val' in split: self.split = self.split + 'val'
         self.track_result_root = track_result_root
         self.results_title = results_title
         self.result_name = result_name

@@ -17,16 +17,17 @@ def load_detection(file):
 		dets = np.expand_dims(dets, axis=0) 	
 	if dets.shape[1] == 0:		# if no detection in a sequence
 		return [], False
+	return dets, True
 
-	# Detection thresholding
-	# filtered_dets = np.array([det for det in dets if det[6] > 0.25])		# TODO: set as parameter
-	filtered_dets = np.array([det for det in dets if det[6] > 0.005])		# TODO: set as parameter
+	# # Detection thresholding
+	# # filtered_dets = np.array([det for det in dets if det[6] > 0.25])		# TODO: set as parameter
+	# filtered_dets = np.array([det for det in dets if det[6] > 0.005])		# TODO: set as parameter
 	
-	if len(filtered_dets.shape) == 1:
-		filtered_dets = np.expand_dims(filtered_dets, axis=0) 	
-	if filtered_dets.shape[1] == 0:		# if no detection in a sequence
-		return [], False
-	return filtered_dets, True
+	# if len(filtered_dets.shape) == 1:
+	# 	filtered_dets = np.expand_dims(filtered_dets, axis=0) 	
+	# if filtered_dets.shape[1] == 0:		# if no detection in a sequence
+	# 	return [], False
+	# return filtered_dets, True
 
 def get_frame_det(dets_all, frame):
 	
