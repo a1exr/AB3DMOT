@@ -88,7 +88,7 @@ def main(args):
     tracker = Tracker(max_age=args.max_age, hungarian=args.hungarian, th=args.TH)
 
     with open(args.checkpoint, 'rb') as f:
-        predictions=json.load(f)['results']
+        detections=json.load(f)['results']
 
     with open(os.path.join(args.work_dir, 'frames_meta.json'), 'rb') as f:
         frames=json.load(f)['frames']
@@ -115,9 +115,9 @@ def main(args):
         time_lag = (frames[i]['timestamp'] - last_time_stamp) 
         last_time_stamp = frames[i]['timestamp']
 
-        preds = predictions[token]
+        dets = detections[token]
 
-        outputs = tracker.step_centertrack(preds, time_lag)
+        outputs = tracker.step_centertrack(dets, time_lag)
         annos = []
 
         for item in outputs:

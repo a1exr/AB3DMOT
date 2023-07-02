@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-from scripts.nuScenes.nusc_tracking.track_utils import greedy_assignment
+from scripts.nuScenes.nusc_tracking.track_utils import greedy_assignment, iou_matching
 from kalman_filter import KF
 import copy 
 import importlib
@@ -104,7 +104,8 @@ class CP_KF_Tracker(object):
       #   dist[dist > 1e18] = 1e18
       #   matched_indices = linear_assignment(copy.deepcopy(dist))
       # else:
-      matched_indices = greedy_assignment(copy.deepcopy(dist), 1)
+      # matched_indices = greedy_assignment(copy.deepcopy(dist), 1)
+      matched_indices = iou_matching(copy.deepcopy(dist), detections, self.tracks)
     else:  # first few frame
       # assert M == 0
       matched_indices = np.array([], np.int32).reshape(-1, 2)
