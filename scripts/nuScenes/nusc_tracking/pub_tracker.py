@@ -1,6 +1,7 @@
 import numpy as np
 import copy
 from scripts.nuScenes.nusc_tracking.track_utils import greedy_assignment, iou_matching
+from scipy.optimize import linear_sum_assignment as linear_assignment
 import copy 
 import importlib
 import sys 
@@ -55,7 +56,7 @@ class PubTracker(object):
     self.id_count = 0
     self.tracks = []
 
-  def step_centertrack(self, detections, time_lag, matching_coefs):
+  def step_centertrack(self, detections, time_lag, matching_coefs, static_score):
     if len(detections) == 0:
       self.tracks = []
     #   return []
@@ -109,12 +110,13 @@ class PubTracker(object):
       (item_cat.reshape(N, 1) != track_cat.reshape(1, M))) > 0
 
       dist = dist  + invalid * 1e18
-      # if self.hungarian:
-      #   dist[dist > 1e18] = 1e18
-      #   matched_indices = linear_assignment(copy.deepcopy(dist))
-      # else:
+      if self.hungarian:
+        dist[dist > 1e18] = 1e18
+        matched_indices = np.array(linear_assignment(copy.deepcopy(dist)))
+        matched_indices = matched_indices.transpose()
+      else:
       # matched_indices = greedy_assignment(copy.deepcopy(dist))
-      matched_indices = iou_matching(copy.deepcopy(dist), detections, self.tracks, matching_coefs)
+        matched_indices = iou_matching(copy.deepcopy(dist), detections, self.tracks, matching_coefs)
       
     else:  # first few frame
       # assert M == 0
@@ -161,7 +163,7 @@ class PubTracker(object):
         # track['active'] = 0
         # ct = track['ct']
         is_static_track = len([attr for attr in NUSCENES_STATIC_ATTRIBUTES if attr in track['attribute_name']]) > 0
-        track['active'] = 1 if (is_static_track and track['age']==1 and track['detection_score']>0.3) else 0
+        track['active'] = 1 if (is_static_track and track['age']==1 and track['detection_score']>static_score) else 0
           
         # movement in the last second
         if 'tracking' in track:

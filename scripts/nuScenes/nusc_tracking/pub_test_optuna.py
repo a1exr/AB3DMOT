@@ -106,48 +106,53 @@ def objective(trial, args, detections, frames):
     # }
 
     # # --- fine optuna params ---
-    # max_age = trial.suggest_int('max_age', 2, 4)
-    # det_th = trial.suggest_float('det_th', 0.0015, 0.005)
+    # max_age = trial.suggest_int('max_age', 4, 4)
+    # det_th = trial.suggest_float('det_th', 0.00445, 0.0045)
 
     # velocity_error = {
-    #     'car': trial.suggest_float('car', 1.0, 3.5),
-    #     'truck': trial.suggest_float('truck', 3.0, 8.5),
-    #     'bus': trial.suggest_float('bus', 3.0, 9.0),
-    #     'trailer': trial.suggest_float('trailer', 3.5, 7.0),
-    #     'pedestrian': trial.suggest_float('pedestrian', 0.1, 3.5),
-    #     'motorcycle': trial.suggest_float('motorcycle', 3.0, 8.0),
-    #     'bicycle': trial.suggest_float('bicycle', 1.0, 5.0)  
+    #     'car': trial.suggest_float('car', 2.5, 4.0),
+    #     'truck': trial.suggest_float('truck', 2.0, 3.5),
+    #     'bus': trial.suggest_float('bus', 2.0, 4.5),
+    #     'trailer': trial.suggest_float('trailer', 5.0, 7.0),
+    #     'pedestrian': trial.suggest_float('pedestrian', 1.0, 2.5),
+    #     'motorcycle': trial.suggest_float('motorcycle', 3.0, 5.0),
+    #     'bicycle': trial.suggest_float('bicycle', 1.0, 2.5)  
     # }
     
     # matching_coefs = {
-    #     'size': trial.suggest_float('size', 0.15, 1.0),
-    #     'dist': trial.suggest_float('dist', 0.25, 0.8),
-    #     'confidence': trial.suggest_float('confidence', 0.1, 0.9),
-    #     'iou': trial.suggest_float('iou', 0.0, 1.0)
+    #     'size': trial.suggest_float('size', 0.45, 0.65),
+    #     'dist': trial.suggest_float('dist', 0.45, 0.65),
+    #     'confidence': trial.suggest_float('confidence', 0.45, 0.65),
+    #     'iou': trial.suggest_float('iou', 0.0, 0.2)
     # }
 
     # --- test new optuna params ---
-    max_age = trial.suggest_int('max_age', 4, 4)
-    det_th = trial.suggest_float('det_th', 0.00445, 0.0045)
+    tracker_params = {
+        'max_age': trial.suggest_int('max_age', 3, 5),
+        'det_th': trial.suggest_float('det_th', 0.0044, 0.0045),
+        'hungarian': trial.suggest_categorical('hungarian', [True, False])
+    }
 
     velocity_error = {
         'car': trial.suggest_float('car', 2.5, 4.0),
         'truck': trial.suggest_float('truck', 2.0, 3.5),
-        'bus': trial.suggest_float('bus', 2.0, 4.5),
-        'trailer': trial.suggest_float('trailer', 5.0, 7.0),
-        'pedestrian': trial.suggest_float('pedestrian', 1.0, 2.5),
-        'motorcycle': trial.suggest_float('motorcycle', 3.0, 5.0),
+        'bus': trial.suggest_float('bus', 2.0, 3.5),
+        'trailer': trial.suggest_float('trailer', 5.0, 6.5),
+        'pedestrian': trial.suggest_float('pedestrian', 1.0, 2.0),
+        'motorcycle': trial.suggest_float('motorcycle', 3.0, 4.5),
         'bicycle': trial.suggest_float('bicycle', 1.0, 2.5)  
     }
     
     matching_coefs = {
-        'size': trial.suggest_float('size', 0.45, 0.65),
-        'dist': trial.suggest_float('dist', 0.45, 0.65),
-        'confidence': trial.suggest_float('confidence', 0.45, 0.65),
+        'size': trial.suggest_float('size', 0.4, 0.6),
+        'dist': trial.suggest_float('dist', 0.45, 0.7),
+        'confidence': trial.suggest_float('confidence', 0.35, 0.7),
         'iou': trial.suggest_float('iou', 0.0, 0.2)
     }
 
-    main(args, detections, frames, max_age, det_th, velocity_error, matching_coefs)
+    static_score = trial.suggest_float('static_score', 0.1, 0.5)
+
+    main(args, detections, frames, tracker_params, velocity_error, matching_coefs, static_score)
     metrics = eval_tracking(args)
     # ---------------------------------------
 
@@ -162,8 +167,8 @@ def objective(trial, args, detections, frames):
     return amota
 
 
-def main(args, detections, frames, max_age, det_th, velocity_error, matching_coefs):
-    tracker = Tracker(max_age=max_age, hungarian=args.hungarian, th=det_th, velocity_error=velocity_error)
+def main(args, detections, frames, tracker_params, velocity_error, matching_coefs, static_score):
+    tracker = Tracker(max_age=tracker_params['max_age'], hungarian=tracker_params['hungarian'], th=tracker_params['det_th'], velocity_error=velocity_error)
 
     nusc_annos = {
         "results": {},
@@ -189,7 +194,7 @@ def main(args, detections, frames, max_age, det_th, velocity_error, matching_coe
 
         dets = detections[token]
 
-        outputs = tracker.step_centertrack(dets, time_lag, matching_coefs)
+        outputs = tracker.step_centertrack(dets, time_lag, matching_coefs, static_score)
         annos = []
 
         for item in outputs:
